@@ -172,8 +172,25 @@
     .word-key { min-width: 0; min-height: 42px; flex: 1; padding: 5px 3px; border: 0; border-radius: 7px; color: var(--text); background: #555b69; cursor: pointer; font-size: 13px; font-weight: 800; }
     .word-key.wide { flex: 1.5; font-size: 10px; }
     .word-key.exact { background: #78c779; }
-    .word-key.present { background: #d4ad55; }
-    .word-key.miss { background: #3a4051; color: #b7bdc9; }
+    .word-key.present { background: #e58b36; }
+    .word-key.miss { background: #d84c55; color: #fff; }
+    .word-row { display: grid; grid-template-columns: repeat(5, min(15vw, 58px)); gap: 7px; justify-content: center; }
+    .word-bubble { width: min(15vw, 58px); height: min(15vw, 58px); display: grid; place-items: center; border: 2px solid rgba(255,255,255,.16); border-radius: 15px; color: white; font-size: 23px; font-weight: 900; box-shadow: inset 0 1px 5px rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.2); }
+    .word-bubble.exact { background: #46a86a; border-color: #85e5a0; }
+    .word-bubble.present { background: #e58b36; border-color: #ffc274; }
+    .word-bubble.miss { background: #d84c55; border-color: #ff8585; }
+    .racer-hud { width: min(800px, 100%); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 7px 14px; color: var(--muted); font-size: 13px; }
+    .racer-hud strong { color: var(--lime); }
+    .bowling-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+    .bowling-controls button { min-width: 76px; min-height: 46px; }
+    .sudoku-board { display: grid; grid-template-columns: repeat(9, min(8.7vw, 42px)); border: 2px solid #a78bfa; }
+    .sudoku-cell { width: min(8.7vw, 42px); height: min(8.7vw, 42px); padding: 0; border: 1px solid rgba(255,255,255,.14); border-radius: 0; background: #202638; color: var(--text); font-weight: 700; }
+    .sudoku-cell.fixed { background: #303750; }
+    .sudoku-cell:nth-child(3n) { border-right: 2px solid #a78bfa; }
+    .sudoku-cell:nth-child(n+19):nth-child(-n+27), .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #a78bfa; }
+    .sudoku-cell.selected { background: #61518d; }
+    .number-pad { max-width: 400px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .question-card { width: min(600px, 100%); padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); text-align: center; font-size: 20px; font-weight: 750; }
     .mole-board { display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; }
     .mole-hole { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 50%; background: #111522; cursor: pointer; font-size: 29px; }
     .mole-hole.active { background: rgba(198,243,107,.17); }
@@ -245,7 +262,7 @@
             <h1>Welcome to your<br>sidequest.</h1>
             <p>A pocket-sized arcade of quick games. No downloads, no accounts — just choose something and play.</p>
           </div>
-          <div class="game-count"><strong>26</strong> mini games · free to play</div>
+          <div class="game-count"><strong>38</strong> mini games · free to play</div>
         </div>
         <div class="toolbar">
           <h2>Choose your game</h2>
@@ -292,7 +309,7 @@
             <span class="game-icon tone-pink" aria-hidden="true">🏃</span><span class="card-title">Neon Sprint</span><span class="card-desc">Jump and slide through a fast-moving neon obstacle course.</span>
           </button>
           <button class="game-card" data-game="racer">
-            <span class="game-icon tone-lime" aria-hidden="true">🏎️</span><span class="card-title">Pocket Racer</span><span class="card-desc">Race traffic, dodge cones, and survive each checkpoint.</span>
+            <span class="game-icon tone-lime" aria-hidden="true">🏎️</span><span class="card-title">Pocket Racer</span><span class="card-desc">Race in a first-person road view, dodge hazards, collect boosts, and hit the finish.</span>
           </button>
           <button class="game-card" data-game="flight3d">
             <span class="game-icon tone-blue" aria-hidden="true">🛩️</span><span class="card-title">Sky Patrol 3D</span><span class="card-desc">Fly through a 3D starfield and collect glowing rings.</span>
@@ -301,10 +318,10 @@
             <span class="game-icon tone-purple" aria-hidden="true">🗝️</span><span class="card-title">Dungeon Dash 3D</span><span class="card-desc">Explore a first-person dungeon, find its key, and escape.</span>
           </button>
           <button class="game-card" data-game="bowling3d">
-            <span class="game-icon tone-pink" aria-hidden="true">🎳</span><span class="card-title">Cosmic Bowling 3D</span><span class="card-desc">Aim down the lane and knock over the glowing pins.</span>
+            <span class="game-icon tone-pink" aria-hidden="true">🎳</span><span class="card-title">Cosmic Bowling 3D</span><span class="card-desc">Play from the bowler's viewpoint, move across the lane, and steer your shot.</span>
           </button>
           <button class="game-card" data-game="word">
-            <span class="game-icon tone-lime" aria-hidden="true">🔤</span><span class="card-title">Word Spark</span><span class="card-desc">Crack a five-letter word in six clever guesses.</span>
+            <span class="game-icon tone-lime" aria-hidden="true">🔤</span><span class="card-title">Word Spark</span><span class="card-desc">Crack a five-letter word with Wordle-style red, orange, and green letter bubbles.</span>
           </button>
           <button class="game-card" data-game="connect">
             <span class="game-icon tone-blue" aria-hidden="true">🔴</span><span class="card-title">Connect Four</span><span class="card-desc">Drop four discs in a row before your friend does.</span>
@@ -329,6 +346,42 @@
           </button>
           <button class="game-card" data-game="geography">
             <span class="game-icon tone-lime" aria-hidden="true">🌍</span><span class="card-title">Geo Explorer</span><span class="card-desc">Explore countries, capitals, continents, and landmarks.</span>
+          </button>
+          <button class="game-card" data-game="sudoku">
+            <span class="game-icon tone-purple" aria-hidden="true">🔢</span><span class="card-title">Sudoku Studio</span><span class="card-desc">Solve a number-placement puzzle with three difficulty levels.</span>
+          </button>
+          <button class="game-card" data-game="typing">
+            <span class="game-icon tone-blue" aria-hidden="true">⌨️</span><span class="card-title">Typing Dash</span><span class="card-desc">Race the timer, train accuracy, and improve your WPM.</span>
+          </button>
+          <button class="game-card" data-game="science">
+            <span class="game-icon tone-lime" aria-hidden="true">🧪</span><span class="card-title">Science Quest</span><span class="card-desc">Take on a fast-paced quiz about science and nature.</span>
+          </button>
+          <button class="game-card" data-game="fractions">
+            <span class="game-icon tone-pink" aria-hidden="true">🍰</span><span class="card-title">Fraction Kitchen</span><span class="card-desc">Slice, compare, and simplify fractions to fill your order.</span>
+          </button>
+          <button class="game-card" data-game="elements">
+            <span class="game-icon tone-blue" aria-hidden="true">⚗️</span><span class="card-title">Element Explorer</span><span class="card-desc">Learn chemical symbols and atomic numbers with quick rounds.</span>
+          </button>
+          <button class="game-card" data-game="hangman">
+            <span class="game-icon tone-purple" aria-hidden="true">🪢</span><span class="card-title">Word Detective</span><span class="card-desc">Uncover a clue word one letter at a time.</span>
+          </button>
+          <button class="game-card" data-game="lights">
+            <span class="game-icon tone-lime" aria-hidden="true">💡</span><span class="card-title">Lights Out</span><span class="card-desc">Flip tiles and plan ahead to switch off every light.</span>
+          </button>
+          <button class="game-card" data-game="pattern">
+            <span class="game-icon tone-pink" aria-hidden="true">🧩</span><span class="card-title">Pattern IQ</span><span class="card-desc">Spot the rule and complete each number sequence.</span>
+          </button>
+          <button class="game-card" data-game="blackjack">
+            <span class="game-icon tone-blue" aria-hidden="true">🃏</span><span class="card-title">Blackjack Basics</span><span class="card-desc">Practice probability and decide when to hit or stand.</span>
+          </button>
+          <button class="game-card" data-game="rps">
+            <span class="game-icon tone-purple" aria-hidden="true">✊</span><span class="card-title">Rock Paper Scissors</span><span class="card-desc">Read the odds and win a best-of-five showdown.</span>
+          </button>
+          <button class="game-card" data-game="orbit">
+            <span class="game-icon tone-pink" aria-hidden="true">🪐</span><span class="card-title">Orbit Defender</span><span class="card-desc">Pilot a tiny ship, dodge space debris, and defend your orbit.</span>
+          </button>
+          <button class="game-card" data-game="music">
+            <span class="game-icon tone-lime" aria-hidden="true">🎼</span><span class="card-title">Note Navigator</span><span class="card-desc">Learn the treble staff by naming notes before the clock runs out.</span>
           </button>
           <div class="empty-state" id="emptyState" hidden>No games match that search. Try another name.</div>
         </div>
@@ -384,12 +437,12 @@
       maze3d: ["3D Maze", "Walk with W/S, turn with A/D or ←/→, and find the glowing exit."]
       ,space: ["Star Dodger", "Move with ←/→ or A/D, dodge the asteroid shower, and blast with Space."],
       runner: ["Neon Sprint", "Jump with Space or ↑, slide with ↓, and keep moving through the obstacle course."],
-      racer: ["Pocket Racer", "Steer with ←/→ or A/D, avoid traffic, and make it to the finish."],
+      racer: ["Pocket Racer", "Steer with ←/→ or A/D, boost with Space, brake with ↓, and collect cyan boosts while dodging traffic."],
       flight3d: ["Sky Patrol 3D", "Steer with the arrow keys or WASD, collect rings, and avoid the floating asteroids."],
       dungeon3d: ["Dungeon Dash 3D", "Use W/S to walk and A/D or ←/→ to turn. Find the golden key and reach the exit."],
-      bowling3d: ["Cosmic Bowling 3D", "Use ←/→ to aim, then press Space or Roll to send the ball down the lane."],
-      word: ["Word Spark", "Guess the hidden five-letter word in six tries. Green means right letter, right place."],
-      connect: ["Connect Four", "Take turns dropping discs. Connect four across, down, or diagonally to win."],
+      bowling3d: ["Cosmic Bowling 3D", "Move your ball with ←/→, adjust power, then roll and steer from the lane-side camera."],
+      word: ["Word Spark", "Guess the hidden five-letter word. Green is correct, orange is misplaced, and red is absent."],
+      connect: ["Connect Four", "Take turns dropping discs. Win the level's match series by connecting four in a row."],
       mines: ["Minesweeper", "Reveal every safe square. Right-click or use Flag to mark a suspected mine."],
       simon: ["Simon Says", "Watch the color sequence, then repeat it in the same order."],
       scramble: ["Word Scramble", "Unscramble the letters and solve the clue to clear the round."],
@@ -397,9 +450,21 @@
       checkers: ["Checkers Challenge", "Play as Red against a checkers bot. Captures are required; crown a piece by reaching the far side."],
       math: ["Math Sprint", "Choose a math skill, solve ten questions, and build your streak."],
       geography: ["Geo Explorer", "Test your knowledge of world capitals, continents, and famous landmarks."]
+      ,sudoku: ["Sudoku Studio", "Fill every row, column, and 3×3 box with the digits 1–9."],
+      typing: ["Typing Dash", "Type the passage accurately before the timer runs out."],
+      science: ["Science Quest", "Answer science questions and build a streak."],
+      fractions: ["Fraction Kitchen", "Compare fractions and simplify your answers."],
+      elements: ["Element Explorer", "Match chemical symbols to their element names."],
+      hangman: ["Word Detective", "Use the clue to uncover a word before your guesses run out."],
+      lights: ["Lights Out", "Switch off every light; each move flips neighboring tiles too."],
+      pattern: ["Pattern IQ", "Find the hidden rule and complete each sequence."],
+      blackjack: ["Blackjack Basics", "Practice hand values and probability against the dealer."],
+      rps: ["Rock Paper Scissors", "Win a best-of-five showdown against the computer."],
+      orbit: ["Orbit Defender", "Pilot your ship, blast debris, and defend your orbit."],
+      music: ["Note Navigator", "Name notes on the treble staff before time runs out."]
     };
     const gameLevels = Object.create(null);
-    const gamesWithoutLevels = new Set(["connect", "chess", "checkers"]);
+    const gamesWithoutLevels = new Set(["chess", "checkers"]);
     let activeGame = "";
     let cleanupGame = () => {};
     let restartCurrentGame = () => {};
@@ -502,7 +567,7 @@
       if (name === "dungeon3d") startDungeonDash({ addCleanup, button, message, level });
       if (name === "bowling3d") startCosmicBowling({ addCleanup, button, message, level });
       if (name === "word") startWordSpark({ button, message, level });
-      if (name === "connect") startConnectFour({ button, message });
+      if (name === "connect") startConnectFour({ button, message, level });
       if (name === "mines") startMinesweeper({ button, message, level });
       if (name === "simon") startSimonSays({ addCleanup, setTimeoutSafe, button, message, level });
       if (name === "scramble") startWordScramble({ button, message, level });
@@ -510,6 +575,18 @@
       if (name === "checkers") startCheckersChallenge({ addCleanup, setTimeoutSafe, button, message });
       if (name === "math") startMathSprint({ button, message, level, setTimeoutSafe });
       if (name === "geography") startGeoExplorer({ button, message, level });
+      if (name === "sudoku") startSudoku({ addCleanup, button, message, level });
+      if (name === "typing") startTypingDash({ addCleanup, setIntervalSafe, button, message, level });
+      if (name === "science") startScienceQuest({ button, message, level });
+      if (name === "fractions") startFractionKitchen({ button, message, level });
+      if (name === "elements") startElementExplorer({ button, message, level });
+      if (name === "hangman") startWordDetective({ button, message, level });
+      if (name === "lights") startLightsOut({ button, message, level });
+      if (name === "pattern") startPatternIQ({ button, message, level, setTimeoutSafe });
+      if (name === "blackjack") startBlackjack({ button, message, level });
+      if (name === "rps") startRockPaperScissors({ button, message, level });
+      if (name === "orbit") startOrbitDefender({ addCleanup, button, message, level });
+      if (name === "music") startNoteNavigator({ setIntervalSafe, setTimeoutSafe, button, message, level });
       cleanupGame = cleanup;
     }
 
@@ -717,7 +794,7 @@
 
     function startTicTacToe({ button, message, level }) {
       let cells = Array(9).fill(""), turn = "X", ended = false, xWins = 0, oWins = 0, draws = 0;
-      const targetWins = 1 + Math.floor((level - 1) / 15);
+      const targetWins = Math.min(10, Math.ceil(level / 10));
       const board = document.createElement("div");
       board.className = "ttt-board";
       const score = document.createElement("div");
@@ -755,9 +832,10 @@
           });
           board.append(cell);
         });
+        reset.disabled = xWins >= targetWins || oWins >= targetWins;
       }
       const reset = button("New round");
-      reset.addEventListener("click", () => { cells = Array(9).fill(""); turn = "X"; ended = false; message("X goes first."); draw(); });
+      reset.addEventListener("click", () => { if (xWins >= targetWins || oWins >= targetWins) return; cells = Array(9).fill(""); turn = "X"; ended = false; message("X goes first."); draw(); });
       gameArea.append(score, board, reset);
       updateScore();
       message(`Level ${level}: X must win ${targetWins} round${targetWins === 1 ? "" : "s"}.`);
@@ -1428,33 +1506,80 @@
 
     function startPocketRacer({ addCleanup, button, message, level }) {
       const canvas=document.createElement("canvas");canvas.className="arcade-canvas";canvas.width=640;canvas.height=420;
-      canvas.setAttribute("aria-label","Pocket Racer. Use left and right arrow keys to steer and avoid traffic.");
+      canvas.setAttribute("aria-label","Pocket Racer first-person race. Steer with arrows or A and D, boost with Space, and brake with down.");
       const ctx=canvas.getContext("2d"),keys=new Set();
-      const score=document.createElement("div");score.className="scoreline";
+      const score=document.createElement("div");score.className="racer-hud";
       const controls=document.createElement("div");controls.className="touch-controls";
-      let car,traffic,distance,spawn,lives,lastTime,frameId,done;
-      const goal=1200+level*100,speed=200+Math.min(180,level*2);
-      function reset(){car=320;traffic=[];distance=0;spawn=0;lives=3;lastTime=0;done=false;message(`Level ${level}: race ${goal} m and avoid traffic.`);}
-      function keydown(e){if(noteModal.classList.contains("open"))return;if(["ArrowLeft","ArrowRight","KeyA","KeyD"].includes(e.code)){e.preventDefault();keys.add(e.code);}}
+      let car,objects,distance,spawn,lives,lastTime,frameId,done,boost,invulnerable,roadCurve,nearMisses;
+      const goal=1800+level*140,cruise=210+Math.min(150,level*1.6);
+      function reset(){car=0;objects=[];distance=0;spawn=0;lives=3;boost=30;invulnerable=0;roadCurve=0;nearMisses=0;lastTime=0;done=false;message(`Level ${level}: race ${goal} m. Dodge traffic, collect cyan boosts, and use Space to surge.`);}
+      function keydown(e){if(noteModal.classList.contains("open"))return;if(["ArrowLeft","ArrowRight","KeyA","KeyD","ArrowDown","KeyS","Space"].includes(e.code)){e.preventDefault();keys.add(e.code);}}
       function keyup(e){keys.delete(e.code);}
       document.addEventListener("keydown",keydown);document.addEventListener("keyup",keyup);addCleanup(()=>{document.removeEventListener("keydown",keydown);document.removeEventListener("keyup",keyup);});
-      for(const [label,key] of [["←","ArrowLeft"],["→","ArrowRight"]]){const b=button(label);b.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(key);});["pointerup","pointerleave","pointercancel"].forEach(type=>b.addEventListener(type,()=>keys.delete(key)));controls.append(b);}
+      const hold=(label,key)=>{const b=button(label);b.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(key);});["pointerup","pointerleave","pointercancel"].forEach(type=>b.addEventListener(type,()=>keys.delete(key)));controls.append(b);};
+      hold("◀ Steer","ArrowLeft");hold("Boost","Space");hold("Brake","ArrowDown");hold("Steer ▶","ArrowRight");
       gameArea.append(score,canvas,controls);
+      function project(lane,z){
+        const depth=Math.max(0,Math.min(1,z)),half=78+depth*206,center=320+roadCurve*(1-depth)*50+roadCurve*depth*17;
+        return {x:center+lane*half*.66,y:104+depth*302,scale:.22+depth*.92,half,center};
+      }
       function update(dt){
         if(done)return;
-        if(keys.has("ArrowLeft")||keys.has("KeyA"))car-=300*dt;if(keys.has("ArrowRight")||keys.has("KeyD"))car+=300*dt;car=Math.max(200,Math.min(440,car));
-        distance+=speed*dt/10;spawn+=dt;if(spawn>Math.max(.38,.95-level*.005)){spawn=0;const lanes=[220,320,420];traffic.push({x:lanes[Math.floor(Math.random()*3)],y:-70,color:["#f58bbd","#a78bfa","#70c7ff"][Math.floor(Math.random()*3)]});}
-        for(const other of traffic){other.y+=speed*dt;if(!other.hit&&other.y>315&&other.y<390&&Math.abs(other.x-car)<42){other.hit=true;lives--;}}
-        traffic=traffic.filter(other=>other.y<460&&!other.hit);
-        score.innerHTML=`Level ${level} · Distance <strong>${Math.floor(distance)}/${goal} m</strong> · Lives <strong>${lives}</strong>`;
-        if(lives<=0){done=true;message(`Race over at ${Math.floor(distance)} m. Press Restart to try again.`);}
-        else if(distance>=goal){done=true;message(`Level ${level} finished! Pick the next level above.`);}
+        const steering=(keys.has("ArrowRight")||keys.has("KeyD")?1:0)-(keys.has("ArrowLeft")||keys.has("KeyA")?1:0);
+        car=Math.max(-1.16,Math.min(1.16,car+steering*(1.9+Math.abs(car)*.45)*dt));
+        if(keys.has("Space")&&boost>0){boost=Math.max(0,boost-31*dt);}
+        else boost=Math.min(100,boost+7*dt);
+        const braking=keys.has("ArrowDown")||keys.has("KeyS");
+        const speed=cruise*(braking?.68:keys.has("Space")&&boost>0?1.55:1);
+        roadCurve=Math.sin(distance/260)*.8;
+        distance+=speed*dt/10;
+        spawn+=dt;
+        if(spawn>Math.max(.44,1.05-level*.007)){
+          spawn=0;
+          const typeRoll=Math.random(),type=typeRoll<.64?"traffic":typeRoll<.83?"oil":typeRoll<.94?"boost":"coin";
+          objects.push({lane:Math.floor(Math.random()*5)-2,z:0,type,passed:false});
+        }
+        for(const object of objects){
+          object.z+=speed*dt/(210+level*1.4);
+          if(object.z>.82&&!object.passed){
+            object.passed=true;
+            if(Math.abs(object.lane/2-car)<.34){
+              if(object.type==="boost"){boost=Math.min(100,boost+34);nearMisses++;}
+              else if(object.type==="coin"){nearMisses++;boost=Math.min(100,boost+12);}
+              else if(invulnerable<=0){lives--;invulnerable=1.35;car+=car>0?-.24:.24;if(object.type==="oil")message("Oil slick! You spun out; steer back to the center.");else message("Crash! Recover quickly and keep racing.");}
+            }else if((object.type==="traffic"||object.type==="oil")&&Math.abs(object.lane/2-car)<.65){nearMisses++;boost=Math.min(100,boost+5);}
+          }
+        }
+        objects=objects.filter(object=>object.z<1.08);
+        invulnerable=Math.max(0,invulnerable-dt);
+        score.innerHTML=`<span>Level ${level} · <strong>${Math.floor(distance)}/${goal} m</strong></span><span>♥ <strong>${lives}</strong> · Boost <strong>${Math.floor(boost)}%</strong> · Near misses <strong>${nearMisses}</strong></span>`;
+        if(lives<=0){done=true;message(`Race over at ${Math.floor(distance)} m. Collect cyan boosts and use short boosts to slip past traffic.`);}
+        else if(distance>=goal){done=true;message(`Level ${level} finished! ${nearMisses} clean passes. Pick the next level above.`);}
+      }
+      function drawCar(x,y,w,h,color,windshield){
+        ctx.fillStyle="rgba(0,0,0,.36)";ctx.beginPath();ctx.ellipse(x,y+h*.45,w*.72,h*.2,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x-w*.5,y+h*.38);ctx.lineTo(x-w*.42,y+h*.05);ctx.lineTo(x-w*.23,y-h*.28);ctx.lineTo(x+w*.23,y-h*.28);ctx.lineTo(x+w*.42,y+h*.05);ctx.lineTo(x+w*.5,y+h*.38);ctx.closePath();ctx.fill();
+        ctx.fillStyle=windshield;ctx.beginPath();ctx.moveTo(x-w*.28,y+h*.02);ctx.lineTo(x-w*.17,y-h*.19);ctx.lineTo(x+w*.17,y-h*.19);ctx.lineTo(x+w*.28,y+h*.02);ctx.closePath();ctx.fill();
+        ctx.fillStyle="#111522";ctx.fillRect(x-w*.55,y+h*.12,w*.13,h*.25);ctx.fillRect(x+w*.42,y+h*.12,w*.13,h*.25);
+        ctx.fillStyle="#fff3a6";ctx.fillRect(x-w*.36,y+h*.25,w*.14,h*.07);ctx.fillRect(x+w*.22,y+h*.25,w*.14,h*.07);
       }
       function draw(){
-        ctx.fillStyle="#172a27";ctx.fillRect(0,0,640,420);ctx.fillStyle="#313344";ctx.beginPath();ctx.moveTo(170,0);ctx.lineTo(470,0);ctx.lineTo(580,420);ctx.lineTo(60,420);ctx.fill();
-        ctx.strokeStyle="#c6f36b";ctx.lineWidth=4;ctx.setLineDash([22,20]);ctx.lineDashOffset=-(distance*2%42);ctx.beginPath();ctx.moveTo(320,0);ctx.lineTo(320,420);ctx.stroke();ctx.setLineDash([]);
-        traffic.forEach(other=>{ctx.fillStyle=other.color;ctx.fillRect(other.x-17,other.y-27,34,55);ctx.fillStyle="#dbe8ff";ctx.fillRect(other.x-12,other.y-17,24,12);});
-        ctx.fillStyle="#70e5ff";ctx.fillRect(car-19,340,38,62);ctx.fillStyle="#f5f6fb";ctx.fillRect(car-14,348,28,12);
+        const sky=ctx.createLinearGradient(0,0,0,420);sky.addColorStop(0,"#10152c");sky.addColorStop(.52,"#6b4d71");sky.addColorStop(.53,"#31513f");sky.addColorStop(1,"#101d20");ctx.fillStyle=sky;ctx.fillRect(0,0,640,420);
+        for(let i=0;i<8;i++){const x=((i*103+distance*.09)%820)-90,h=34+(i*19)%40;ctx.fillStyle=i%2?"#1b3532":"#243b35";ctx.beginPath();ctx.moveTo(x-25,110);ctx.lineTo(x,110-h);ctx.lineTo(x+28,110);ctx.fill();}
+        const near=project(0,1),far=project(0,0);
+        ctx.fillStyle="#a18b68";ctx.beginPath();ctx.moveTo(far.center-far.half,104);ctx.lineTo(far.center+far.half,104);ctx.lineTo(near.center+near.half,420);ctx.lineTo(near.center-near.half,420);ctx.fill();
+        ctx.fillStyle="#303444";ctx.beginPath();ctx.moveTo(far.center-far.half*.9,104);ctx.lineTo(far.center+far.half*.9,104);ctx.lineTo(near.center+near.half*.86,420);ctx.lineTo(near.center-near.half*.86,420);ctx.fill();
+        ctx.strokeStyle="#f6dc75";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(far.center-far.half*.9,104);ctx.lineTo(near.center-near.half*.86,420);ctx.moveTo(far.center+far.half*.9,104);ctx.lineTo(near.center+near.half*.86,420);ctx.stroke();
+        for(let i=1;i<3;i++){const a=project(0,(i*0.25+(distance/140)%0.25)),b=project(0,Math.min(1,a.y?((i*0.25+(distance/140)%0.25)):0));ctx.strokeStyle="rgba(255,255,255,.55)";ctx.lineWidth=1+i*1.2;ctx.beginPath();ctx.moveTo(a.center-a.half*(.32+i*.08),a.y);ctx.lineTo(a.center+a.half*(.32+i*.08),a.y);ctx.stroke();}
+        objects.slice().sort((a,b)=>a.z-b.z).forEach(object=>{
+          const p=project(object.lane/2,object.z),w=20*p.scale,h=38*p.scale;
+          if(object.type==="traffic")drawCar(p.x,p.y,w*1.45,h,"#"+(["f58185","a78bfa","f0b857"][Math.abs(object.lane+2)%3]),"#b8e4ed");
+          else if(object.type==="oil"){ctx.fillStyle="#272034";ctx.beginPath();ctx.ellipse(p.x,p.y,w*1.2,h*.2,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#b076df";ctx.stroke();}
+          else{ctx.fillStyle=object.type==="boost"?"#70e5ff":"#ffd166";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=15*p.scale;ctx.beginPath();ctx.arc(p.x,p.y,w*.45,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle="#ffffff";ctx.font=`${Math.max(8,12*p.scale)}px system-ui`;ctx.textAlign="center";ctx.fillText(object.type==="boost"?"⚡":"★",p.x,p.y+4*p.scale);}
+        });
+        const player=project(car,1);
+        if(invulnerable<=0||Math.floor(invulnerable*12)%2===0)drawCar(player.x,373,44,74,keys.has("Space")&&boost>0?"#42d5f1":"#61a9ff","#173953");
+        ctx.fillStyle="rgba(255,255,255,.7)";ctx.font="12px system-ui";ctx.textAlign="center";ctx.fillText("← STEER · SPACE BOOST · ↓ BRAKE",320,24);
       }
       function frame(time){const dt=lastTime?Math.min((time-lastTime)/1000,.04):0;lastTime=time;update(dt);draw();frameId=requestAnimationFrame(frame);}
       reset();frameId=requestAnimationFrame(frame);addCleanup(()=>cancelAnimationFrame(frameId));
@@ -1465,7 +1590,7 @@
       const accepted = new Set(answers.concat("ABOUT ABOVE ACTOR ACUTE ADMIT ADOPT AFTER AGAIN AGENT AGREE AHEAD ALARM ALBUM ALERT ALIVE ALLOW ALONE ALONG ALTER AMONG ANGLE ANGRY APART APPLE APPLY ARENA ARGUE ARISE ARMOR ASIDE ASSET AUDIO AVOID AWARD AWARE BADGE BASIC BEACH BEGIN BELOW BENCH BIRTH BLACK BLAME BLANK BLAST BLAZE BLEND BLIND BLOCK BLOOD BOARD BONUS BOUND BRAIN BRAND BRAVE BREAD BREAK BRICK BRIDE BRIEF BRING BROAD BROKE BROWN BRUSH BUILD BUILT BUYER CABIN CABLE CARRY CATCH CAUSE CHAIR CHAMP CHANCE CHANGE CHART CHASE CHEAP CHECK CHEEK CHESS CHIEF CHILD CHINA CHOICE CIVIL CLAIM CLASS CLEAN CLEAR CLERK CLICK CLIMB CLOCK CLOSE CLOUD COACH COAST COLOR COMET COMIC COUNT COURT COVER CRAFT CRASH CREAM CRIME CROSS CROWD CROWN CURVE CYCLE DAILY DANCE DEALT DEATH DECOR DELAY DEPTH DIARY DIGIT DIRTY DOING DOUBT DOZEN DRAFT DRAMA DREAM DRESS DRINK DRIVE DROWN EAGER EARLY EARTH EIGHT ELDER ELECT ENJOY ENTER ENTRY EQUAL ERROR EVENT EVERY EXACT EXIST EXTRA FAITH FALSE FANCY FAVOR FEAST FENCE FEVER FIELD FIFTY FIGHT FINAL FIRST FIXED FLAME FLASH FLEET FLOOR FLOUR FOCUS FORCE FORTH FORTY FOUND FRAME FRESH FRONT FRUIT FUNNY GIANT GIVEN GLASS GLOBE GLOOM GLOVE GRACE GRADE GRAIN GRAND GRANT GRASS GREAT GREEN GROUP GROWN GUARD GUESS GUEST GUIDE HABIT HAPPY HEART HEAVY HELLO HONEY HONOR HORSE HOTEL HUMAN HUMOR IDEAL IMAGE INDEX INNER INPUT ISSUE JUDGE JUICE KNIFE KNOCK KNOWN LABEL LARGE LATER LAUGH LAYER LEARN LEAST LEAVE LEGAL LEVEL LIGHT LIMIT LUNCH LYING MAGIC MAJOR MAKER MARCH MATCH MAYBE METAL MIGHT MINOR MODEL MONEY MONTH MORAL MOTOR MOUNT MOUSE MOUTH MOVIE MUSIC NEVER NIGHT NOBLE NOISE NORTH NOVEL NURSE OCCUR OCEAN OFFER OFTEN ORDER OTHER OWNER PAINT PANEL PAPER PARTY PEACE PHASE PHONE PHOTO PIECE PILOT PITCH PLACE PLANE PLANT PLATE POINT POWER PRESS PRICE PRIDE PRIME PRINT PRIOR PROOF PROUD QUEEN QUICK QUIET QUITE QUOTE RADIO RAISE RANGE RAPID REACH READY RELAX REPLY RIGHT RIVER ROUND ROYAL SCALE SCENE SCOPE SCORE SENSE SERVE SEVEN SHALL SHAPE SHARE SHARP SHEET SHELF SHELL SHIFT SHINE SHIRT SHOCK SHOOT SHORT SHOWN SIGHT SINCE SKILL SLEEP SLICE SLIDE SMALL SMART SMILE SMOKE SOLID SOLVE SORRY SOUND SOUTH SPACE SPEAK SPEED SPEND SPENT SPLIT SPOKE SPORT STAFF STAGE STAND START STATE STEAM STEEL STILL STOCK STONE STOOD STORE STORM STORY STRIP STUDY STUFF SUGAR SUPER SWEET TABLE TAKEN TEACH THANK THEME THERE THESE THICK THING THINK THIRD THOSE THREE THREW THROW TIGHT TIRED TITLE TODAY TOGETHER TOKEN TOOLS TOOTH TOPIC TOTAL TOUCH TOUGH TOWER TRACK TRADE TRAIN TREAT TREND TRIAL TRIBE TRICK TRIED TRUCK TRULY TRUST TRUTH TWICE UNDER UNION UNITY UNTIL UPPER UPSET URBAN USUAL VALUE VIDEO VISIT VOICE WASTE WATCH WATER WHEEL WHERE WHICH WHILE WHITE WHOLE WHOSE WOMAN WORLD WORRY WORSE WORST WORTH WOULD WRITE WRONG YIELD YOUNG YOUTH".split(/\s+/)));
       ["CRANE","SLATE","STARE","ARISE","ADIEU","REACT","TRACE","ROAST","AUDIO","LEAST"].forEach(word => accepted.add(word));
       const answer=answers[(level*17+Math.floor(Math.random()*answers.length))%answers.length];
-      const maxGuesses=6;
+      const maxGuesses=Math.max(3,6-Math.floor((level-1)/5));
       const form=document.createElement("form"),input=document.createElement("input"),submit=button("Check word","primary-btn");
       const board=document.createElement("div"),keyboard=document.createElement("div"),keyStates=Object.create(null),keyButtons=Object.create(null);
       board.style.cssText="display:grid;gap:7px;width:min(380px,100%)";keyboard.className="word-keyboard";keyboard.setAttribute("aria-label","On-screen word keyboard");
@@ -1500,12 +1625,12 @@
       }
       keyboard.append(bottomRow);
       function addGuess(word){
-        const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:repeat(5,1fr);gap:7px";
+        const row=document.createElement("div");row.className="word-row";
         const remaining=Object.create(null);for(const char of answer)remaining[char]=(remaining[char]||0)+1;
         const states=Array(5).fill("miss");
         for(let i=0;i<5;i++)if(word[i]===answer[i]){states[i]="exact";remaining[word[i]]--;}
         for(let i=0;i<5;i++)if(states[i]!=="exact"&&remaining[word[i]]>0){states[i]="present";remaining[word[i]]--;}
-        word.split("").forEach((char,i)=>{const tile=document.createElement("span");tile.textContent=char;tile.className=`word-key ${states[i]}`;tile.style.cssText="display:grid;place-items:center;height:48px;border-radius:9px;font-weight:850;font-size:20px;cursor:default";row.append(tile);updateKey(char,states[i]);});
+        word.split("").forEach((char,i)=>{const tile=document.createElement("span");tile.textContent=char;tile.className=`word-bubble ${states[i]}`;row.append(tile);updateKey(char,states[i]);});
         board.append(row);
       }
       form.addEventListener("submit",event=>{
@@ -1516,24 +1641,40 @@
         guesses++;addGuess(word);
         if(word===answer){ended=true;input.disabled=true;submit.disabled=true;message(`Level ${level} cleared in ${guesses} ${guesses===1?"guess":"guesses"}! Pick the next level above.`);}
         else if(guesses>=maxGuesses){ended=true;input.disabled=true;submit.disabled=true;message(`The word was ${answer}. Press Restart to try again.`);}
-        else message(`${maxGuesses-guesses} guesses left. Green is correct; gold is in the word.`);
+        else message(`${maxGuesses-guesses} guesses left. Green is correct; orange is in the word; red is absent.`);
         input.value="";
       });
       gameArea.append(form,board,keyboard);
-      message(`Level ${level}: solve the five-letter word in six guesses. Green is correct; gold is in the word; gray is absent.`);
+      message(`Level ${level}: solve the five-letter word in ${maxGuesses} guesses. Green is correct; orange is in the word; red is absent.`);
     }
 
-    function startConnectFour({ button, message }) {
+    function startConnectFour({ button, message, level }) {
       const rows = 6, columns = 7;
-      const board = Array(rows * columns).fill(0);
+      let board = Array(rows * columns).fill(0);
+      let pinkWins = 0, limeWins = 0, draws = 0;
+      const targetWins = Math.min(10, Math.ceil(level / 10));
       const controls = document.createElement("div");
       controls.className = "inline-controls";
+      const score = document.createElement("div");
+      score.className = "scoreline";
       const grid = document.createElement("div");
       grid.className = "connect-board";
       grid.setAttribute("role", "grid");
       grid.setAttribute("aria-label", "Connect Four board");
       const dropButtons = [];
       let current = 1, ended = false;
+
+      function updateScore() {
+        score.innerHTML = `Level ${level} · Pink <strong>${pinkWins}/${targetWins}</strong> · Lime <strong>${limeWins}/${targetWins}</strong> · Draws <strong>${draws}</strong>`;
+      }
+
+      function resetRound() {
+        board = Array(rows * columns).fill(0);
+        current = 1;
+        ended = false;
+        message("New round. Pink goes first!");
+        draw();
+      }
 
       function hasWon(row, column, player) {
         return [[0, 1], [1, 0], [1, 1], [1, -1]].some(([dr, dc]) => {
@@ -1562,6 +1703,7 @@
           }
         }
         dropButtons.forEach((drop, column) => { drop.disabled = ended || board[column] !== 0; });
+        if (nextRound) nextRound.disabled = !ended || pinkWins >= targetWins || limeWins >= targetWins;
       }
 
       function drop(column) {
@@ -1572,14 +1714,18 @@
         board[row * columns + column] = current;
         if (hasWon(row, column, current)) {
           ended = true;
-          message(`${current === 1 ? "Pink" : "Lime"} wins! Press Restart for a new game.`);
+          if (current === 1) pinkWins++; else limeWins++;
+          const winner = current === 1 ? "Pink" : "Lime";
+          message(pinkWins >= targetWins || limeWins >= targetWins ? `${winner} won the series and cleared level ${level}!` : `${winner} wins the round. Start the next one!`);
         } else if (board.every(cell => cell !== 0)) {
           ended = true;
-          message("It's a draw! Press Restart to play again.");
+          draws++;
+          message("It's a draw! Start another round.");
         } else {
           current = current === 1 ? 2 : 1;
           message(`${current === 1 ? "Pink" : "Lime"}'s turn.`);
         }
+        updateScore();
         draw();
       }
 
@@ -1590,9 +1736,12 @@
         dropButtons.push(dropButton);
         controls.append(dropButton);
       }
-      gameArea.append(controls, grid);
+      const nextRound = button("Next round");
+      nextRound.addEventListener("click", resetRound);
+      gameArea.append(score, controls, grid, nextRound);
+      updateScore();
       draw();
-      message("Pink goes first. Connect four discs in a row!");
+      message(`Level ${level}: be first to win ${targetWins} round${targetWins === 1 ? "" : "s"}. Pink goes first!`);
     }
 
     function startMinesweeper({ button, message, level }) {
@@ -2436,49 +2585,347 @@
 
     function startCosmicBowling({ addCleanup, button, message, level }) {
       const canvas=document.createElement("canvas");canvas.className="arcade-canvas";canvas.width=800;canvas.height=450;
-      canvas.setAttribute("aria-label","Cosmic Bowling 3D. Aim with arrow keys and press Space to roll.");
+      canvas.setAttribute("aria-label","Cosmic Bowling first-person 3D lane. Move the ball with left and right, steer during the roll, then launch with Space.");
       const ctx=canvas.getContext("2d"),keys=new Set(),score=document.createElement("div");score.className="scoreline";
       const controls=document.createElement("div");controls.className="touch-controls";
       const target=Math.min(10,4+Math.floor(level/12));
-      let aim,knocked,rolls,total,rolling,progress,lastTime,frameId;
-      function reset(){aim=0;knocked=new Set();rolls=0;total=0;rolling=false;progress=0;lastTime=0;message(`Level ${level}: knock down ${target} pins in three rolls.`);}
+      let aim,steer,knocked,rolls,total,rolling,progress,lastTime,frameId,power;
+      function reset(){aim=0;steer=0;knocked=new Set();rolls=0;total=0;rolling=false;progress=0;power=.72;lastTime=0;message(`Level ${level}: knock down ${target} pins in three rolls. Use ←/→ to move your ball, then steer while it rolls.`);}
       function keydown(e){if(noteModal.classList.contains("open"))return;if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code)){e.preventDefault();keys.add(e.code);if(e.code==="Space")startRoll();}}
       function keyup(e){keys.delete(e.code);}
       document.addEventListener("keydown",keydown);document.addEventListener("keyup",keyup);addCleanup(()=>{document.removeEventListener("keydown",keydown);document.removeEventListener("keyup",keyup);});
-      const left=button("← Aim"),roll=button("Roll","primary-btn"),right=button("Aim →");
-      left.addEventListener("pointerdown",e=>{e.preventDefault();aim=Math.max(-.75,aim-.13);});
-      right.addEventListener("pointerdown",e=>{e.preventDefault();aim=Math.min(.75,aim+.13);});
-      roll.addEventListener("click",startRoll);controls.append(left,roll,right);gameArea.append(score,canvas,controls);
-      function startRoll(){if(rolling||rolls>=3||total>=target)return;rolling=true;progress=0;rolls++;}
+      const left=button("◀ Move"),roll=button("Roll","primary-btn"),right=button("Move ▶"),powerDown=button("− Power"),powerUp=button("+ Power");
+      const nudge=delta=>{if(rolling)steer=Math.max(-.55,Math.min(.55,steer+delta));else aim=Math.max(-.72,Math.min(.72,aim+delta));};
+      left.addEventListener("pointerdown",e=>{e.preventDefault();nudge(-.12);});
+      right.addEventListener("pointerdown",e=>{e.preventDefault();nudge(.12);});
+      powerDown.addEventListener("click",()=>power=Math.max(.35,power-.1));
+      powerUp.addEventListener("click",()=>power=Math.min(1,power+.1));
+      roll.addEventListener("click",startRoll);controls.append(left,powerDown,roll,powerUp,right);gameArea.append(score,canvas,controls);
+      function startRoll(){if(rolling||rolls>=3||total>=target)return;rolling=true;progress=0;rolls++;steer=0;message("Ball away! Use the arrow keys to steer your shot.");}
       function finishRoll(){
         rolling=false;
         for(let row=0;row<4;row++)for(let col=0;col<=row;col++){
           const index=row*4+col;if(knocked.has(index))continue;
-          const pinX=(col-row/2)*.24;
-          if(Math.abs(pinX-aim)<.13+row*.025)knocked.add(index);
+          const pinX=(col-row/2)*.24,shotX=aim+steer*.42;
+          if(Math.abs(pinX-shotX)<.12+power*.11+row*.018)knocked.add(index);
         }
         total=knocked.size;
         if(total>=target)message(`Level ${level} cleared with ${total} pins! Pick the next level above.`);
         else if(rolls>=3)message(`You knocked down ${total}/${target} pins. Press Restart to bowl again.`);
-        else message(`${total} pins down. Aim again for roll ${rolls+1}.`);
+        else message(`${total} pins down. Move your starting line and steer through the pins on roll ${rolls+1}.`);
       }
       function draw(){
-        ctx.fillStyle="#101329";ctx.fillRect(0,0,800,450);
-        ctx.fillStyle="#272342";ctx.beginPath();ctx.moveTo(275,65);ctx.lineTo(525,65);ctx.lineTo(690,450);ctx.lineTo(110,450);ctx.fill();
-        ctx.strokeStyle="rgba(198,243,107,.22)";ctx.lineWidth=2;for(let i=0;i<7;i++){const x=275+i*41.7;ctx.beginPath();ctx.moveTo(x,65);ctx.lineTo(110+(x-275)*2.32,450);ctx.stroke();}
+        const sky=ctx.createLinearGradient(0,0,0,450);sky.addColorStop(0,"#090d22");sky.addColorStop(.55,"#282649");sky.addColorStop(1,"#111328");ctx.fillStyle=sky;ctx.fillRect(0,0,800,450);
+        for(let i=0;i<42;i++){const x=(i*179+level*37)%800,y=(i*97)%190;ctx.fillStyle=`rgba(190,205,255,${.2+(i%4)*.12})`;ctx.fillRect(x,y,2,2);}
+        ctx.fillStyle="#16192d";ctx.fillRect(0,194,800,256);
+        const horizon=205,base=450,offset=rolling?steer*13:aim*20;
+        ctx.fillStyle="#22243d";ctx.beginPath();ctx.moveTo(337+offset*.18,horizon);ctx.lineTo(463+offset*.18,horizon);ctx.lineTo(735+offset,base);ctx.lineTo(65+offset,base);ctx.closePath();ctx.fill();
+        const laneGrad=ctx.createLinearGradient(0,horizon,0,base);laneGrad.addColorStop(0,"#7f74a4");laneGrad.addColorStop(.48,"#514b78");laneGrad.addColorStop(1,"#373858");ctx.fillStyle=laneGrad;ctx.beginPath();ctx.moveTo(344+offset*.18,horizon);ctx.lineTo(456+offset*.18,horizon);ctx.lineTo(672+offset,base);ctx.lineTo(128+offset,base);ctx.closePath();ctx.fill();
+        ctx.fillStyle="#111427";ctx.beginPath();ctx.moveTo(337+offset*.18,horizon);ctx.lineTo(344+offset*.18,horizon);ctx.lineTo(128+offset,base);ctx.lineTo(65+offset,base);ctx.fill();ctx.beginPath();ctx.moveTo(456+offset*.18,horizon);ctx.lineTo(463+offset*.18,horizon);ctx.lineTo(735+offset,base);ctx.lineTo(672+offset,base);ctx.fill();
+        ctx.strokeStyle="rgba(210,205,255,.28)";ctx.lineWidth=2;for(let i=1;i<6;i++){const t=i/6,x=344+(128-344)*t+offset*t,y=horizon+(base-horizon)*t;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(800-x,y);ctx.stroke();}
+        for(let i=0;i<5;i++){const t=(i/5+progress*.18)%1,y=horizon+Math.pow(t,1.8)*245,x=400+offset*t;ctx.strokeStyle=`rgba(112,229,255,${.12+t*.28})`;ctx.lineWidth=1+t*2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+3+t*14);ctx.stroke();}
         for(let row=3;row>=0;row--)for(let col=0;col<=row;col++){
           const index=row*4+col;if(knocked.has(index))continue;
-          const depth=.78-row*.14,sx=400+(col-row/2)*34*depth,sy=111+row*18;
-          ctx.fillStyle="#f5f6fb";ctx.beginPath();ctx.ellipse(sx,sy,7*depth,11*depth,0,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle="#f58bbd";ctx.fillRect(sx-4*depth,sy-4*depth,8*depth,3*depth);
+          const depth=.35+row*.09,sx=400+(col-row/2)*38*depth+offset*.24,sy=208+row*13,ph=9+row*3,pw=4+row*1.6;
+          ctx.fillStyle="rgba(0,0,0,.4)";ctx.beginPath();ctx.ellipse(sx,sy+ph*.65,pw*1.4,ph*.25,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle="#f6f1ff";ctx.beginPath();ctx.ellipse(sx,sy,pw,ph,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle="#f58bbd";ctx.fillRect(sx-pw*.58,sy-ph*.14,pw*1.16,Math.max(2,ph*.18));
         }
-        if(rolling){const z=Math.min(1,progress),bx=400+aim*220*z,by=435-300*z,br=24-15*z;ctx.fillStyle="#70e5ff";ctx.shadowColor="#70e5ff";ctx.shadowBlur=16;ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle="#d9fbff";ctx.beginPath();ctx.arc(bx-br*.3,by-br*.3,br*.18,0,Math.PI*2);ctx.fill();}
-        else{ctx.fillStyle="#70e5ff";ctx.beginPath();ctx.arc(400+aim*220,420,22,0,Math.PI*2);ctx.fill();}
-        ctx.fillStyle="rgba(255,255,255,.65)";ctx.font="14px system-ui";ctx.textAlign="center";ctx.fillText("AIM",400+aim*180,390);
-        score.innerHTML=`Level ${level} · Pins <strong>${total}/${target}</strong> · Rolls <strong>${rolls}/3</strong>`;
+        const z=rolling?Math.min(1,progress):0,bx=400+(rolling?aim*(1-z)*245+(aim+steer*.42)*z*90:aim*245),by=rolling?424-z*222:407,br=rolling?Math.max(7,29-z*20):29;
+        ctx.fillStyle="rgba(0,0,0,.38)";ctx.beginPath();ctx.ellipse(bx,by+br*.58,br*1.12,br*.4,0,0,Math.PI*2);ctx.fill();
+        const ball=ctx.createRadialGradient(bx-br*.35,by-br*.45,2,bx,by,br);ball.addColorStop(0,"#c6fbff");ball.addColorStop(.22,"#70e5ff");ball.addColorStop(1,"#31518b");ctx.fillStyle=ball;ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle="#172348";for(const [dx,dy] of [[-.25,-.08],[.12,-.22],[.2,.06]]){ctx.beginPath();ctx.arc(bx+dx*br,by+dy*br,br*.09,0,Math.PI*2);ctx.fill();}
+        ctx.fillStyle="rgba(255,255,255,.75)";ctx.font="13px system-ui";ctx.textAlign="center";ctx.fillText(`POWER ${Math.round(power*100)}% · ${rolling?"STEER IN FLIGHT":"MOVE TO AIM"}`,400,28);
+        score.innerHTML=`Level ${level} · Pins <strong>${total}/${target}</strong> · Rolls <strong>${rolls}/3</strong> · Aim <strong>${Math.round(aim*100)}%</strong>`;
       }
-      function frame(time){const dt=lastTime?Math.min((time-lastTime)/1000,.04):0;lastTime=time;if(keys.has("ArrowLeft")||keys.has("KeyA"))aim=Math.max(-.75,aim-1.2*dt);if(keys.has("ArrowRight")||keys.has("KeyD"))aim=Math.min(.75,aim+1.2*dt);if(rolling){progress+=dt*1.1;if(progress>=1)finishRoll();}draw();frameId=requestAnimationFrame(frame);}
+      function frame(time){const dt=lastTime?Math.min((time-lastTime)/1000,.04):0;lastTime=time;const steerInput=(keys.has("ArrowRight")||keys.has("KeyD")?1:0)-(keys.has("ArrowLeft")||keys.has("KeyA")?1:0);if(rolling)steer=Math.max(-.55,Math.min(.55,steer+steerInput*dt*.8));else aim=Math.max(-.72,Math.min(.72,aim+steerInput*dt*.8));if(rolling){progress+=dt*(.5+power*.7);if(progress>=1)finishRoll();}draw();frameId=requestAnimationFrame(frame);}
       reset();frameId=requestAnimationFrame(frame);addCleanup(()=>cancelAnimationFrame(frameId));
+    }
+
+    function startSudoku({ addCleanup, button, message, level }) {
+      const base=Array.from({length:9},(_,r)=>Array.from({length:9},(_,c)=>(r*3+Math.floor(r/3)+c)%9+1));
+      const digits=[1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-.5),solution=base.map(row=>row.map(n=>digits[n-1]));
+      const puzzle=solution.map(row=>row.slice()),cells=[],size=Math.min(58,Math.floor((Math.min(innerWidth,460)-28)/9));
+      const board=document.createElement("div");board.className="sudoku-board";board.setAttribute("role","grid");board.style.gridTemplateColumns=`repeat(9, ${size}px)`;
+      const score=document.createElement("div");score.className="scoreline";
+      const pad=document.createElement("div");pad.className="number-pad";
+      const blanks=Math.min(58,30+Math.floor((level-1)*.28));
+      const selected=[];for(let i=0;i<81;i++)selected.push(i);selected.sort(()=>Math.random()-.5);
+      selected.slice(0,blanks).forEach(i=>{puzzle[Math.floor(i/9)][i%9]=0;});
+      let focus=-1,finished=false;
+      function draw(){
+        board.replaceChildren();
+        puzzle.forEach((row,r)=>row.forEach((value,c)=>{
+          const index=r*9+c,cell=button(value?String(value):"","sudoku-cell"+(solution[r][c]===value?" fixed":"")+(focus===index?" selected":""));
+          cell.style.width=`${size}px`;cell.style.height=`${size}px`;cell.setAttribute("aria-label",`Row ${r+1}, column ${c+1}${value?`, ${value}`:", empty"}`);
+          cell.disabled=finished||solution[r][c]===value;
+          cell.addEventListener("click",()=>{focus=index;draw();});
+          cells[index]=cell;board.append(cell);
+        }));
+        const filled=puzzle.flat().filter(Boolean).length;
+        score.innerHTML=`Level ${level} · Filled <strong>${filled}/81</strong> · Empty cells <strong>${blanks}</strong>`;
+      }
+      function enter(value){
+        if(finished||focus<0)return;
+        const r=Math.floor(focus/9),c=focus%9;
+        if(solution[r][c]===puzzle[r][c])return;
+        puzzle[r][c]=value;draw();
+        if(puzzle.every((row,y)=>row.every((n,x)=>n===solution[y][x]))){finished=true;draw();message(`Sudoku solved! Level ${level} cleared. Pick the next level above.`);}
+      }
+      function keydown(event){if(noteModal.classList.contains("open"))return;if(/^[1-9]$/.test(event.key)){event.preventDefault();enter(Number(event.key));}else if(event.key==="Backspace"||event.key==="Delete"){event.preventDefault();enter(0);}else if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)){event.preventDefault();focus=Math.max(0,Math.min(80,focus+(event.key==="ArrowLeft"?-1:event.key==="ArrowRight"?1:event.key==="ArrowUp"?-9:9)));draw();}}
+      document.addEventListener("keydown",keydown);addCleanup(()=>document.removeEventListener("keydown",keydown));
+      for(let n=1;n<=9;n++){const key=button(String(n));key.addEventListener("click",()=>enter(n));pad.append(key);}
+      const erase=button("Erase");erase.addEventListener("click",()=>enter(0));pad.append(erase);
+      gameArea.append(score,board,pad);draw();message(`Level ${level}: solve the ${blanks}-empty Sudoku. Tap a cell, then a number.`);
+    }
+
+    function startTypingDash({ addCleanup, setIntervalSafe, button, message, level }) {
+      const passages=[
+        "Curiosity turns small questions into big discoveries. Observe the world, test your ideas, and learn from every result.",
+        "A steady rhythm makes typing feel like a game. Relax your hands, watch the text, and aim for accuracy before speed.",
+        "The ocean carries heat around our planet. Tiny currents, winds, and living things all help keep its ecosystems in balance.",
+        "When you practice a skill a little each day, your confidence grows. Mistakes are useful clues that show what to try next."
+      ];
+      const target=passages[(level*7+Math.floor(Math.random()*passages.length))%passages.length],timeLimit=Math.max(18,45-Math.floor((level-1)/4));
+      const goalWpm=14+Math.floor((level-1)/3),panel=document.createElement("div");panel.className="question-card";panel.style.textAlign="left";panel.style.lineHeight="1.8";
+      const text=document.createElement("div");const input=document.createElement("textarea");input.className="guess-input";input.rows=3;input.autocomplete="off";input.spellcheck=false;input.placeholder="Start typing here...";input.setAttribute("aria-label","Type the passage shown above");
+      const stats=document.createElement("div");stats.className="scoreline";let seconds=timeLimit,started=false,finished=false;
+      function render(){
+        const typed=input.value;let html="";
+        for(let i=0;i<target.length;i++){const state=i>=typed.length?"":typed[i]===target[i]?"#84e1a1":"#ff777f";html+=`<span style="color:${state||"#e3e7f2"};${i===typed.length?"text-decoration:underline;text-decoration-color:#70e5ff;":""}">${target[i]}</span>`;}
+        text.innerHTML=html;
+        const correct=[...typed].filter((char,i)=>char===target[i]).length,elapsed=timeLimit-seconds,wpm=elapsed?Math.round(correct/5/(elapsed/60)):0;
+        stats.innerHTML=`Level ${level} · Time <strong>${seconds}s</strong> · Accuracy <strong>${typed.length?Math.round(correct/typed.length*100):100}%</strong> · Speed <strong>${wpm} WPM</strong> · Goal <strong>${goalWpm} WPM</strong>`;
+        if(typed===target){finished=true;input.disabled=true;const passed=wpm>=goalWpm;message(passed?`Level ${level} cleared at ${wpm} WPM with ${Math.round(correct/target.length*100)}% accuracy!`:`Passage complete at ${wpm} WPM. Reach ${goalWpm} WPM to clear this level.`);}
+      }
+      input.addEventListener("input",()=>{if(!started&&!finished){started=true;setIntervalSafe(()=>{if(finished)return;if(seconds>0)seconds--;render();if(seconds===0){finished=true;input.disabled=true;message("Time is up. Press Restart to try the passage again.");}},1000);}render();});
+      panel.append(text);gameArea.append(stats,panel,input);render();message(`Level ${level}: type the passage within ${timeLimit} seconds and reach ${goalWpm} WPM.`);
+    }
+
+    function startScienceQuest({ button, message, level }) {
+      const bank=[
+        ["Which planet is known as the Red Planet?","Mars",["Venus","Mars","Jupiter","Mercury"],1],
+        ["What gas do plants absorb from the air?","Carbon dioxide",["Oxygen","Nitrogen","Carbon dioxide","Helium"],1],
+        ["What is the center of an atom called?","Nucleus",["Cell","Nucleus","Orbit","Core"],1],
+        ["Which force pulls objects toward Earth?","Gravity",["Friction","Gravity","Magnetism","Pressure"],1],
+        ["What is H₂O commonly called?","Water",["Hydrogen","Salt","Water","Oxygen"],1],
+        ["Which organ pumps blood around the body?","Heart",["Lung","Brain","Heart","Liver"],1],
+        ["At sea level, water boils at what temperature in Celsius?","100",["0","50","100","212"],1],
+        ["What is the largest organ of the human body?","Skin",["Liver","Skin","Heart","Brain"],2],
+        ["Which particles have a negative electric charge?","Electrons",["Protons","Neutrons","Electrons","Photons"],2],
+        ["What process lets plants turn sunlight into food?","Photosynthesis",["Respiration","Photosynthesis","Condensation","Digestion"],2],
+        ["Which layer of Earth is liquid and surrounds the inner core?","Outer core",["Crust","Mantle","Outer core","Inner core"],3],
+        ["What is the approximate speed of light in vacuum?","300,000 km/s",["30,000 km/s","150,000 km/s","300,000 km/s","1,000 km/s"],3]
+      ];
+      const available=bank.filter(item=>item[3]<=Math.min(3,1+Math.floor((level-1)/8))),rounds=Math.min(10,5+Math.floor((level-1)/15));
+      let order=available.slice().sort(()=>Math.random()-.5),index=0,correct=0,locked=false;
+      const panel=document.createElement("div");panel.className="question-card";
+      const score=document.createElement("div");score.className="scoreline";
+      function show(){
+        locked=false;panel.replaceChildren();score.innerHTML=`Level ${level} · Question <strong>${index+1}/${rounds}</strong> · Correct <strong>${correct}</strong>`;
+        const item=order[index%order.length],question=document.createElement("p");question.textContent=item[0];panel.append(question);
+        item[2].forEach(option=>{const choice=button(option);choice.addEventListener("click",()=>{if(locked)return;locked=true;if(option===item[1]){correct++;message("Correct! Great science thinking.");}else message(`Not quite—the answer is ${item[1]}.`);choice.classList.add(option===item[1]?"primary-btn":"secondary-btn");next.disabled=false;});panel.append(choice);});
+      }
+      const next=button("Next question","primary-btn");next.disabled=true;
+      next.addEventListener("click",()=>{if(!locked)return;index++;if(index>=rounds){const need=Math.ceil(rounds*.7);message(correct>=need?`Level ${level} cleared! ${correct}/${rounds} correct.`:`${correct}/${rounds} correct. You need ${need} to clear level ${level}; press Restart to retry.`);next.disabled=true;panel.querySelectorAll("button").forEach(choice=>choice.disabled=true);return;}next.disabled=true;show();});
+      gameArea.append(score,panel,next);show();message(`Level ${level}: answer ${rounds} questions and get at least ${Math.ceil(rounds*.7)} right.`);
+    }
+
+    function startFractionKitchen({ button, message, level }) {
+      const rounds=5+Math.floor((level-1)/20);let index=0,correct=0,finished=false,current;
+      const panel=document.createElement("div");panel.className="question-card";
+      const score=document.createElement("div");score.className="scoreline";
+      const form=document.createElement("form"),input=document.createElement("input"),submit=button("Serve answer","primary-btn");
+      input.className="guess-input";input.placeholder="e.g. 3/4";input.setAttribute("aria-label","Enter the fraction in simplest form");submit.type="submit";form.append(input,submit);
+      function newQuestion(){
+        const max=5+Math.min(12,level),denom=2+Math.floor(Math.random()*(max-1)),numerator=1+Math.floor(Math.random()*(denom-1));
+        let a=numerator,b=denom;while(b){[a,b]=[b,a%b];}
+        current=[numerator/a,denom/a];panel.textContent=`Order ${index+1}/${rounds}: reduce ${numerator}/${denom} to simplest form.`;score.innerHTML=`Level ${level} · Correct <strong>${correct}</strong> · Ingredients up to <strong>${max}</strong>`;
+      }
+      form.addEventListener("submit",event=>{event.preventDefault();if(finished)return;const match=input.value.trim().match(/^(\d+)\s*\/\s*(\d+)$/);if(!match){message("Write your answer as a fraction, such as 3/4.");return;}const n=Number(match[1]),d=Number(match[2]);if(d===0){message("A fraction's denominator cannot be zero.");return;}if(n===current[0]&&d===current[1]){correct++;message("Perfectly simplified! Order up.");}else message(`Try the next one: the simplest form was ${current[0]}/${current[1]}.`);index++;input.value="";if(index>=rounds){finished=true;submit.disabled=true;const need=Math.ceil(rounds*.7);message(correct>=need?`Level ${level} cleared! ${correct}/${rounds} orders correct.`:`${correct}/${rounds} correct. Get ${need} right to clear level ${level}. Press Restart to cook again.`);}else newQuestion();});
+      gameArea.append(score,panel,form);newQuestion();message(`Level ${level}: simplify ${rounds} fractions. Get ${Math.ceil(rounds*.7)} right to clear the kitchen.`);
+    }
+
+    function startElementExplorer({ button, message, level }) {
+      const periodic=[["H","Hydrogen",1],["He","Helium",2],["Li","Lithium",3],["C","Carbon",6],["N","Nitrogen",7],["O","Oxygen",8],["Ne","Neon",10],["Na","Sodium",11],["Mg","Magnesium",12],["Al","Aluminum",13],["Si","Silicon",14],["P","Phosphorus",15],["S","Sulfur",16],["Cl","Chlorine",17],["Ar","Argon",18],["K","Potassium",19],["Ca","Calcium",20],["Fe","Iron",26],["Cu","Copper",29],["Zn","Zinc",30],["Ag","Silver",47],["Sn","Tin",50],["I","Iodine",53],["Au","Gold",79],["Hg","Mercury",80],["Pb","Lead",82]];
+      const rounds=5+Math.floor((level-1)/18),pool=periodic.slice(0,Math.min(periodic.length,8+level*2));
+      let index=0,correct=0,answer,finished=false;
+      const panel=document.createElement("div");panel.className="question-card";const score=document.createElement("div");score.className="scoreline";
+      const form=document.createElement("form"),input=document.createElement("input"),submit=button("Check element","primary-btn");input.className="guess-input";input.autocomplete="off";input.setAttribute("aria-label","Enter the element name or chemical symbol");input.placeholder="element name or symbol";submit.type="submit";form.append(input,submit);
+      function next(){
+        answer=pool[Math.floor(Math.random()*pool.length)];const askName=Math.random()<.6;
+        panel.textContent=askName?`Which element has the symbol ${answer[0]}?`:`What is the symbol for ${answer[1]} (atomic number ${answer[2]})?`;
+        answer.mode=askName?"name":"symbol";score.innerHTML=`Level ${level} · Question <strong>${index+1}/${rounds}</strong> · Correct <strong>${correct}</strong> · Elements <strong>${pool.length}</strong>`;
+      }
+      form.addEventListener("submit",event=>{event.preventDefault();if(finished)return;const value=input.value.trim().toLowerCase(),expected=answer.mode==="name"?answer[1].toLowerCase():answer[0].toLowerCase();if(value===expected){correct++;message(`Correct! ${answer[1]} is element ${answer[2]}.`);}else message(`Not quite—the answer is ${answer[1]} (${answer[0]}).`);input.value="";index++;if(index>=rounds){finished=true;submit.disabled=true;const need=Math.ceil(rounds*.7);message(correct>=need?`Level ${level} cleared! ${correct}/${rounds} elements identified.`:`${correct}/${rounds} correct. You need ${need} to clear level ${level}; press Restart to retry.`);}else next();});
+      gameArea.append(score,panel,form);next();message(`Level ${level}: identify ${rounds} elements by name, symbol, or atomic number.`);
+    }
+
+    function startWordDetective({ button, message, level }) {
+      const words=[
+        ["planet","A large world that orbits a star."],["gravity","The force that pulls objects toward one another."],["habitat","The natural home of a plant or animal."],["volcano","An opening in Earth's crust that can release lava."],["compass","A tool that points the way using Earth's magnetic field."],["fraction","A number that represents part of a whole."],["triangle","A shape with three sides."],["evaporation","When liquid water changes into vapor."],["constellation","A pattern of stars named after an object or figure."],["photosynthesis","The process plants use to make food from light."],["ecosystem","Living things and their environment working together."],["telescope","A tool that helps us see faraway objects in space."]
+      ];
+      const maxMisses=Math.max(4,9-Math.floor((level-1)/14)),pool=words.filter(item=>item[0].length<=6+Math.floor((level-1)/8));
+      let answer,guessed,misses,done,scoreValue=0;
+      const panel=document.createElement("div");panel.className="question-card";const score=document.createElement("div");score.className="scoreline";
+      const letters=document.createElement("div");letters.className="number-pad";
+      function draw(){
+        const shown=[...answer[0]].map(letter=>guessed.has(letter)?letter.toUpperCase():"_").join(" ");
+        panel.textContent=`${shown}  ·  ${answer[1]}`;score.innerHTML=`Level ${level} · Solved <strong>${scoreValue}</strong> · Misses <strong>${misses}/${maxMisses}</strong>`;
+        letters.querySelectorAll("button").forEach(key=>{key.disabled=done||guessed.has(key.textContent.toLowerCase());});
+      }
+      function startWord(){answer=pool[Math.floor(Math.random()*pool.length)];guessed=new Set();misses=0;done=false;draw();}
+      const next=button("Next word","primary-btn");next.disabled=true;
+      "abcdefghijklmnopqrstuvwxyz".split("").forEach(letter=>{const key=button(letter.toUpperCase());key.addEventListener("click",()=>{if(done||guessed.has(letter))return;guessed.add(letter);if(!answer[0].includes(letter))misses++;const solved=[...answer[0]].every(char=>guessed.has(char));if(solved){scoreValue++;done=true;next.disabled=false;message("Solved! Read the clue and word aloud, then take another.");}else if(misses>=maxMisses){done=true;next.disabled=false;message(`Out of guesses! The answer was ${answer[0].toUpperCase()}.`);}draw();});letters.append(key);});
+      next.addEventListener("click",()=>{next.disabled=true;startWord();message(`Level ${level}: use up to ${maxMisses} wrong guesses to uncover the word.`);});
+      gameArea.append(score,panel,letters,next);startWord();message(`Level ${level}: use the clue and choose letters. Higher levels have longer words and fewer misses.`);
+    }
+
+    function startLightsOut({ button, message, level }) {
+      const size=Math.min(7,4+Math.floor((level-1)/18)),board=Array(size*size).fill(false),grid=document.createElement("div");
+      grid.className="memory-board";grid.style.gridTemplateColumns=`repeat(${size},minmax(38px,1fr))`;grid.style.width=`min(420px,100%)`;
+      const score=document.createElement("div");score.className="scoreline";let moves=0,finished=false;
+      function flip(index){const row=Math.floor(index/size),col=index%size;for(const [dr,dc] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){const r=row+dr,c=col+dc;if(r>=0&&r<size&&c>=0&&c<size)board[r*size+c]=!board[r*size+c];}}
+      for(let i=0;i<Math.max(8,8+level);i++)flip(Math.floor(Math.random()*board.length));
+      if(board.every(value=>!value))flip(Math.floor(Math.random()*board.length));
+      function draw(){grid.replaceChildren();board.forEach((on,index)=>{const cell=button(on?"●":"·",`memory-card${on?"":" hidden"}`);cell.setAttribute("aria-label",`Row ${Math.floor(index/size)+1}, column ${index%size+1}, ${on?"on":"off"}`);cell.disabled=finished;cell.addEventListener("click",()=>{if(finished)return;moves++;flip(index);draw();score.innerHTML=`Level ${level} · Moves <strong>${moves}</strong> · Lights on <strong>${board.filter(Boolean).length}</strong>`;if(board.every(value=>!value)){finished=true;draw();message(`Lights out in ${moves} moves! Level ${level} cleared.`);}});grid.append(cell);});}
+      const reset=button("Scramble again");reset.addEventListener("click",()=>{moves=0;finished=false;board.fill(false);for(let i=0;i<8+level;i++)flip(Math.floor(Math.random()*board.length));draw();message(`Level ${level}: turn off every light. Each tap flips its neighbors too.`);});
+      gameArea.append(score,grid,reset);draw();score.innerHTML=`Level ${level} · Moves <strong>0</strong> · Lights on <strong>${board.filter(Boolean).length}</strong>`;message(`Level ${level}: turn off all ${size*size} lights. Tap a tile to flip it and its neighbors.`);
+    }
+
+    function startPatternIQ({ button, message, level, setTimeoutSafe }) {
+      const rounds=5+Math.floor((level-1)/18);let index=0,correct=0,finished=false,current;
+      const panel=document.createElement("div");panel.className="question-card";const score=document.createElement("div");score.className="scoreline";const choices=document.createElement("div");choices.className="number-pad";
+      function makeQuestion(){
+        const types=["add","multiply","square"];if(level>=10)types.push("fibonacci");const type=types[Math.floor(Math.random()*types.length)],start=1+Math.floor(Math.random()*8),step=1+Math.floor(Math.random()*(2+Math.floor(level/8)));
+        let sequence=[],answer;
+        if(type==="add"){sequence=Array.from({length:5},(_,i)=>start+i*step);answer=start+5*step;}
+        else if(type==="multiply"){const factor=2+Math.floor(Math.random()*2);sequence=Array.from({length:5},(_,i)=>start*Math.pow(factor,i));answer=start*Math.pow(factor,5);}
+        else if(type==="square"){sequence=Array.from({length:5},(_,i)=>(start+i)*(start+i));answer=(start+5)*(start+5);}
+        else {let a=start,b=start+step;sequence=[a,b];for(let i=2;i<5;i++){[a,b]=[b,a+b];sequence.push(b);}answer=sequence[3]+sequence[4];sequence.pop();}
+        current=answer;panel.textContent=`What comes next?  ${sequence.join("  ·  ")}  ·  ?`;score.innerHTML=`Level ${level} · Question <strong>${index+1}/${rounds}</strong> · Correct <strong>${correct}</strong>`;
+        const options=new Set([answer]);while(options.size<4){const offset=(Math.floor(Math.random()*(4+Math.floor(level/3)))+1)*(Math.random()<.5?-1:1);if(answer+offset>=0)options.add(answer+offset);}
+        choices.replaceChildren();[...options].sort(()=>Math.random()-.5).forEach(value=>{const choice=button(String(value));choice.addEventListener("click",()=>{if(finished||choice.disabled)return;choices.querySelectorAll("button").forEach(item=>item.disabled=true);if(value===current){correct++;message("Correct pattern! Nice reasoning.");}else message(`The next number was ${current}. Look for the step or rule.`);index++;if(index>=rounds){finished=true;const need=Math.ceil(rounds*.7);message(correct>=need?`Level ${level} cleared! ${correct}/${rounds} patterns solved.`:`${correct}/${rounds} correct. You need ${need} to clear level ${level}; press Restart to retry.`);}else setTimeoutSafe(makeQuestion,450);});choices.append(choice);});
+      }
+      gameArea.append(score,panel,choices);makeQuestion();message(`Level ${level}: solve ${rounds} sequences. New pattern types unlock as you advance.`);
+    }
+
+    function startBlackjack({ button, message, level }) {
+      const score=document.createElement("div");score.className="scoreline";const table=document.createElement("div");table.className="question-card";
+      const controls=document.createElement("div");controls.className="number-pad";let player=[],dealer=[],wins=0,losses=0,pushes=0,finished=true,started=false;
+      const targetWins=Math.min(5,Math.ceil(level/20));
+      const hit=button("Hit"),stand=button("Stand"),deal=button("Deal hand","primary-btn");hit.disabled=true;stand.disabled=true;
+      function card(){return 1+Math.floor(Math.random()*13);}
+      function value(hand){let total=0,aces=0;hand.forEach(rank=>{if(rank===1){total+=11;aces++;}else total+=Math.min(10,rank);});while(total>21&&aces){total-=10;aces--;}return total;}
+      function cardName(rank){return rank===1?"A":rank===11?"J":rank===12?"Q":rank===13?"K":String(rank);}
+      function render(reveal){
+        const dealerCards=reveal?dealer.map(cardName).join("  "):`${cardName(dealer[0])}  🂠`;
+        table.innerHTML=`<div>Dealer <strong>${reveal?value(dealer):value([dealer[0]])}</strong><br><span style="font-size:24px">${dealerCards}</span></div><hr><div>You <strong>${value(player)}</strong><br><span style="font-size:24px">${player.map(cardName).join("  ")}</span></div>`;
+        score.innerHTML=`Level ${level} · Wins <strong>${wins}/${targetWins}</strong> · Losses <strong>${losses}</strong> · Pushes <strong>${pushes}</strong>`;
+      }
+      function settle(){
+        finished=true;hit.disabled=true;stand.disabled=true;deal.disabled=wins>=targetWins;
+        const p=value(player),d=value(dealer);
+        if(p>21){losses++;message("Bust! Your hand went over 21. Deal another hand.");}
+        else if(d>21||p>d){wins++;message(wins>=targetWins?`Level ${level} cleared with ${wins} wins!`:"You beat the dealer. Deal another hand.");}
+        else if(p===d){pushes++;message("Push: equal hands. Deal another hand.");}
+        else{losses++;message("Dealer wins this hand. Deal another and rethink the odds.");}
+        render(true);
+      }
+      function standNow(){if(finished)return;while(value(dealer)<17)dealer.push(card());settle();}
+      function newHand(){
+        if(wins>=targetWins)return;
+        player=[card(),card()];dealer=[card(),card()];finished=false;started=true;hit.disabled=false;stand.disabled=false;deal.disabled=true;render(false);
+        if(value(player)===21)standNow();else message("Choose Hit or Stand. Aces count as 1 or 11; face cards count as 10.");
+      }
+      hit.addEventListener("click",()=>{if(finished)return;player.push(card());render(false);if(value(player)>=21)settle();});
+      stand.addEventListener("click",standNow);deal.addEventListener("click",newHand);
+      controls.append(hit,stand,deal);gameArea.append(score,table,controls);render(false);
+      message(`Level ${level}: win ${targetWins} hands. Learn when to hit, stand, or avoid a bust—no betting.`);
+    }
+
+    function startRockPaperScissors({ button, message, level }) {
+      const moves=["Rock","Paper","Scissors"],beats={Rock:"Scissors",Paper:"Rock",Scissors:"Paper"};
+      const targetWins=Math.min(5,3+Math.floor((level-1)/25)),counts={Rock:0,Paper:0,Scissors:0};let playerWins=0,computerWins=0,draws=0,roundLocked=false;
+      const score=document.createElement("div");score.className="scoreline";const panel=document.createElement("div");panel.className="question-card";
+      const choices=document.createElement("div");choices.className="number-pad";const next=button("Next round","primary-btn");next.disabled=true;
+      function render(){score.innerHTML=`Level ${level} · You <strong>${playerWins}/${targetWins}</strong> · CPU <strong>${computerWins}/${targetWins}</strong> · Ties <strong>${draws}</strong>`;}
+      function play(player){
+        if(roundLocked||playerWins>=targetWins||computerWins>=targetWins)return;
+        roundLocked=true;counts[player]++;
+        let computer=moves[Math.floor(Math.random()*3)];
+        if(level>=4&&Math.random()<Math.min(.85,.2+level*.008)){
+          const most=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];computer=beats[most];
+        }
+        panel.textContent=`You chose ${player}; computer chose ${computer}.`;
+        if(player===computer){draws++;message("A tie! No one scores this round.");}
+        else if(beats[player]===computer){playerWins++;message(playerWins>=targetWins?`You won the level ${level} match!`:"You win the round!");}
+        else{computerWins++;message(computerWins>=targetWins?"Computer won the match. Press Restart to try again.":"Computer takes this round.");}
+        render();next.disabled=playerWins>=targetWins||computerWins>=targetWins;
+      }
+      moves.forEach(move=>{const pick=button(move);pick.addEventListener("click",()=>play(move));choices.append(pick);});
+      next.addEventListener("click",()=>{roundLocked=false;next.disabled=true;panel.textContent="Choose your move.";});
+      gameArea.append(score,panel,choices,next);render();message(`Level ${level}: first to ${targetWins} wins. From level 4, the computer starts learning your favorite move.`);
+    }
+
+    function startOrbitDefender({ addCleanup, button, message, level }) {
+      const canvas=document.createElement("canvas");canvas.className="arcade-canvas";canvas.width=640;canvas.height=420;canvas.setAttribute("aria-label","Orbit Defender. Steer with left and right, press Space to fire, and survive the asteroid field.");
+      const ctx=canvas.getContext("2d"),keys=new Set(),score=document.createElement("div");score.className="scoreline";const controls=document.createElement("div");controls.className="touch-controls";
+      const target=6+Math.floor(level/3);let ship,rocks,shots,points,lives,spawn,lastFire,lastTime,frameId,done;
+      function reset(){ship=320;rocks=[];shots=[];points=0;lives=3;spawn=0;lastFire=0;lastTime=0;done=false;message(`Level ${level}: destroy ${target} asteroids and protect your orbit.`);}
+      function keydown(event){if(noteModal.classList.contains("open"))return;if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(event.code)){event.preventDefault();keys.add(event.code);}}
+      function keyup(event){keys.delete(event.code);}
+      document.addEventListener("keydown",keydown);document.addEventListener("keyup",keyup);addCleanup(()=>{document.removeEventListener("keydown",keydown);document.removeEventListener("keyup",keyup);});
+      const hold=(label,key)=>{const b=button(label);b.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(key);});["pointerup","pointerleave","pointercancel"].forEach(type=>b.addEventListener(type,()=>keys.delete(key)));controls.append(b);};
+      hold("◀","ArrowLeft");hold("FIRE","Space");hold("▶","ArrowRight");gameArea.append(score,canvas,controls);
+      function update(dt){
+        if(done)return;
+        ship=Math.max(22,Math.min(618,ship+((keys.has("ArrowRight")||keys.has("KeyD")?1:0)-(keys.has("ArrowLeft")||keys.has("KeyA")?1:0))*300*dt));
+        lastFire-=dt;if(keys.has("Space")&&lastFire<=0){shots.push({x:ship,y:354});lastFire=.24;}
+        spawn+=dt;if(spawn>Math.max(.35,1-level*.008)){spawn=0;rocks.push({x:24+Math.random()*592,y:-25,r:14+Math.random()*15,speed:100+Math.random()*100+level*3});}
+        shots.forEach(shot=>shot.y-=460*dt);rocks.forEach(rock=>rock.y+=rock.speed*dt);
+        for(const shot of shots){const rock=rocks.find(item=>!item.hit&&Math.hypot(item.x-shot.x,item.y-shot.y)<item.r+5);if(rock){rock.hit=true;shot.hit=true;points++;}}
+        rocks=rocks.filter(rock=>{if(rock.hit)return false;if(rock.y>440)return false;if(Math.hypot(rock.x-ship,rock.y-370)<rock.r+12){lives--;return false;}return true;});
+        shots=shots.filter(shot=>!shot.hit&&shot.y>-10);
+        score.innerHTML=`Level ${level} · Asteroids <strong>${points}/${target}</strong> · Shields <strong>${lives}</strong>`;
+        if(points>=target){done=true;message(`Orbit secure! Level ${level} cleared with ${lives} shields remaining.`);}
+        else if(lives<=0){done=true;message(`Your orbit was breached at ${points}/${target}. Press Restart to relaunch.`);}
+      }
+      function draw(){
+        const bg=ctx.createLinearGradient(0,0,0,420);bg.addColorStop(0,"#080b21");bg.addColorStop(1,"#162b4c");ctx.fillStyle=bg;ctx.fillRect(0,0,640,420);
+        for(let i=0;i<75;i++){const x=(i*127+level*11)%640,y=(i*79+Math.floor(performance.now()/90)*(i%3+1))%420;ctx.fillStyle=i%8?"rgba(255,255,255,.55)":"#70e5ff";ctx.fillRect(x,y,2,2);}
+        ctx.strokeStyle="rgba(112,229,255,.18)";ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(320,270,220,43,-.12,0,Math.PI*2);ctx.stroke();
+        rocks.forEach(rock=>{ctx.fillStyle="#8b8ba8";ctx.beginPath();for(let i=0;i<9;i++){const angle=i*Math.PI*2/9,r=rock.r*(.75+(i%3)*.1);if(i===0)ctx.moveTo(rock.x+Math.cos(angle)*r,rock.y+Math.sin(angle)*r);else ctx.lineTo(rock.x+Math.cos(angle)*r,rock.y+Math.sin(angle)*r);}ctx.closePath();ctx.fill();ctx.strokeStyle="#c1c3de";ctx.stroke();});
+        ctx.fillStyle="#70e5ff";shots.forEach(shot=>ctx.fillRect(shot.x-2,shot.y,4,13));
+        ctx.fillStyle="#c6f36b";ctx.beginPath();ctx.moveTo(ship,344);ctx.lineTo(ship-19,382);ctx.lineTo(ship,373);ctx.lineTo(ship+19,382);ctx.closePath();ctx.fill();
+      }
+      function frame(time){const dt=lastTime?Math.min((time-lastTime)/1000,.04):0;lastTime=time;update(dt);draw();frameId=requestAnimationFrame(frame);}
+      reset();frameId=requestAnimationFrame(frame);addCleanup(()=>cancelAnimationFrame(frameId));
+    }
+
+    function startNoteNavigator({ setIntervalSafe, setTimeoutSafe, button, message, level }) {
+      const canvas=document.createElement("canvas");canvas.width=340;canvas.height=170;canvas.style.width="min(340px,100%)";canvas.style.height="auto";canvas.setAttribute("aria-label","Treble clef music staff with a note to identify.");
+      const ctx=canvas.getContext("2d"),notes=["E","F","G","A","B","C","D","E","F","G","A"],range=Math.min(10,4+Math.floor((level-1)/10)),rounds=5+Math.floor((level-1)/20);
+      const panel=document.createElement("div");panel.className="question-card";panel.textContent="Which note is shown?";const choices=document.createElement("div");choices.className="number-pad";const score=document.createElement("div");score.className="scoreline";let current,correct=0,asked=0,seconds=45,finished=false;
+      function drawStaff(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#172136";ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.strokeStyle="#dbe4ff";ctx.lineWidth=2;for(let i=0;i<5;i++){const y=55+i*15;ctx.beginPath();ctx.moveTo(36,y);ctx.lineTo(304,y);ctx.stroke();}
+        ctx.fillStyle="#dbe4ff";ctx.font="68px serif";ctx.fillText("𝄞",10,116);
+        const y=115-current*7.5,nx=184;
+        if(y<55){for(let ly=40;ly>=y;ly-=15){ctx.strokeStyle="#dbe4ff";ctx.beginPath();ctx.moveTo(nx-18,ly);ctx.lineTo(nx+18,ly);ctx.stroke();}}
+        if(y>115){for(let ly=130;ly<=y;ly+=15){ctx.strokeStyle="#dbe4ff";ctx.beginPath();ctx.moveTo(nx-18,ly);ctx.lineTo(nx+18,ly);ctx.stroke();}}
+        ctx.fillStyle="#70e5ff";ctx.beginPath();ctx.ellipse(nx,y,12,8,-.25,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#70e5ff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(nx+11,y);ctx.lineTo(nx+11,y-42);ctx.stroke();
+        canvas.setAttribute("aria-label",`Treble clef staff showing a note at position ${current+1} from the bottom.`);
+      }
+      function next(){
+        if(asked>=rounds){finish();return;}
+        current=Math.floor(Math.random()*(range+1));drawStaff();choices.replaceChildren();
+        ["A","B","C","D","E","F","G"].forEach(note=>{const pick=button(note);pick.addEventListener("click",()=>{if(finished||pick.disabled)return;choices.querySelectorAll("button").forEach(item=>item.disabled=true);if(note===notes[current]){correct++;message(`Correct: ${note} is the note shown.`);}else message(`The note was ${notes[current]}. Remember the lines: E-G-B-D-F.`);asked++;score.innerHTML=`Level ${level} · Correct <strong>${correct}/${asked}</strong> · Time <strong>${seconds}s</strong>`;setTimeoutSafe(()=>{if(!finished)next();},500);});choices.append(pick);});
+        score.innerHTML=`Level ${level} · Question <strong>${asked+1}/${rounds}</strong> · Time <strong>${seconds}s</strong>`;
+      }
+      function finish(){finished=true;choices.querySelectorAll("button").forEach(item=>item.disabled=true);message(correct>=Math.ceil(rounds*.7)?`Level ${level} cleared! ${correct}/${rounds} notes named correctly.`:`Time or questions complete: ${correct}/${rounds}. Reach ${Math.ceil(rounds*.7)} to clear this level.`);}
+      setIntervalSafe(()=>{if(finished)return;seconds--;score.innerHTML=`Level ${level} · Correct <strong>${correct}/${asked}</strong> · Time <strong>${seconds}s</strong>`;if(seconds<=0)finish();},1000);
+      gameArea.append(score,panel,canvas,choices);next();message(`Level ${level}: name ${rounds} notes in 45 seconds. Higher levels add more notes above and below the staff.`);
     }
 
     document.querySelectorAll(".game-card").forEach(card => card.addEventListener("click", () => openGame(card.dataset.game)));
