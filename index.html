@@ -399,6 +399,7 @@
       geography: ["Geo Explorer", "Test your knowledge of world capitals, continents, and famous landmarks."]
     };
     const gameLevels = Object.create(null);
+    const gamesWithoutLevels = new Set(["connect", "chess", "checkers"]);
     let activeGame = "";
     let cleanupGame = () => {};
     let restartCurrentGame = () => {};
@@ -478,7 +479,7 @@
       previousLevel.addEventListener("click", () => changeLevel(name, level - 1));
       nextLevel.addEventListener("click", () => changeLevel(name, level + 1));
       levelBar.append(previousLevel, levelLabel, nextLevel);
-      gameArea.append(levelBar);
+      if (!gamesWithoutLevels.has(name)) gameArea.append(levelBar);
       restartCurrentGame = () => {
         cleanup();
         if (activeGame === name) launchGame(name);
