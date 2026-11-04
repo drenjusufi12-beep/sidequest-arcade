@@ -186,9 +186,11 @@
     .sudoku-board { display: grid; grid-template-columns: repeat(9, min(8.7vw, 42px)); border: 2px solid #a78bfa; }
     .sudoku-cell { width: min(8.7vw, 42px); height: min(8.7vw, 42px); padding: 0; border: 1px solid rgba(255,255,255,.14); border-radius: 0; background: #202638; color: var(--text); font-weight: 700; }
     .sudoku-cell.fixed { background: #303750; }
+    .sudoku-cell.error { background: #542f44; color: #ff9a9f; }
     .sudoku-cell:nth-child(3n) { border-right: 2px solid #a78bfa; }
     .sudoku-cell:nth-child(n+19):nth-child(-n+27), .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #a78bfa; }
     .sudoku-cell.selected { background: #61518d; }
+    .sudoku-cell.error.selected { background: #8a394c; }
     .number-pad { max-width: 400px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
     .question-card { width: min(600px, 100%); padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); text-align: center; font-size: 20px; font-weight: 750; }
     .mole-board { display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; }
@@ -2649,15 +2651,42 @@
       const board=document.createElement("div");board.className="sudoku-board";board.setAttribute("role","grid");board.style.gridTemplateColumns=`repeat(9, ${size}px)`;
       const score=document.createElement("div");score.className="scoreline";
       const pad=document.createElement("div");pad.className="number-pad";
-      const blanks=Math.min(58,30+Math.floor((level-1)*.28));
+      const requestedBlanks=Math.min(49,30+Math.floor((level-1)*.2));
       const selected=[];for(let i=0;i<81;i++)selected.push(i);selected.sort(()=>Math.random()-.5);
-      selected.slice(0,blanks).forEach(i=>{puzzle[Math.floor(i/9)][i%9]=0;});
-      let focus=-1,finished=false;
+      function countSolutions(grid){
+        const rowMasks=Array(9).fill(0),colMasks=Array(9).fill(0),boxMasks=Array(9).fill(0);let found=0;
+        grid.forEach((value,index)=>{if(!value)return;const row=Math.floor(index/9),col=index%9,box=Math.floor(row/3)*3+Math.floor(col/3),bit=1<<value;rowMasks[row]|=bit;colMasks[col]|=bit;boxMasks[box]|=bit;});
+        function search(){
+          if(found>=2)return;
+          let best=-1,options=null;
+          for(let index=0;index<81;index++){
+            if(grid[index])continue;
+            const row=Math.floor(index/9),col=index%9,box=Math.floor(row/3)*3+Math.floor(col/3),used=rowMasks[row]|colMasks[col]|boxMasks[box],candidates=[];
+            for(let digit=1;digit<=9;digit++)if(!(used&(1<<digit)))candidates.push(digit);
+            if(!candidates.length)return;
+            if(!options||candidates.length<options.length){best=index;options=candidates;if(options.length===1)break;}
+          }
+          if(best<0){found++;return;}
+          const row=Math.floor(best/9),col=best%9,box=Math.floor(row/3)*3+Math.floor(col/3);
+          for(const digit of options){const bit=1<<digit;grid[best]=digit;rowMasks[row]|=bit;colMasks[col]|=bit;boxMasks[box]|=bit;search();grid[best]=0;rowMasks[row]^=bit;colMasks[col]^=bit;boxMasks[box]^=bit;if(found>=2)return;}
+        }
+        search();return found;
+      }
+      let blanks=0,focus=-1,finished=false;
+      for(const index of selected){
+        if(blanks>=requestedBlanks)break;
+        const row=Math.floor(index/9),col=index%9,value=puzzle[row][col];puzzle[row][col]=0;
+        if(countSolutions(puzzle.flat())===1)blanks++;else puzzle[row][col]=value;
+      }
       function draw(){
-        board.replaceChildren();
+        board.replaceChildren();const conflicts=new Set();
+        for(let i=0;i<81;i++)if(puzzle[Math.floor(i/9)][i%9])for(let j=i+1;j<81;j++)if(puzzle[Math.floor(j/9)][j%9]===puzzle[Math.floor(i/9)][i%9]){
+          const sameRow=Math.floor(i/9)===Math.floor(j/9),sameColumn=i%9===j%9,sameBox=Math.floor(Math.floor(i/9)/3)===Math.floor(Math.floor(j/9)/3)&&Math.floor((i%9)/3)===Math.floor((j%9)/3);
+          if(sameRow||sameColumn||sameBox){conflicts.add(i);conflicts.add(j);}
+        }
         puzzle.forEach((row,r)=>row.forEach((value,c)=>{
-          const index=r*9+c,cell=button(value?String(value):"","sudoku-cell"+(solution[r][c]===value?" fixed":"")+(focus===index?" selected":""));
-          cell.style.width=`${size}px`;cell.style.height=`${size}px`;cell.setAttribute("aria-label",`Row ${r+1}, column ${c+1}${value?`, ${value}`:", empty"}`);
+          const index=r*9+c,cell=button(value?String(value):"","sudoku-cell"+(solution[r][c]===value?" fixed":"")+(conflicts.has(index)?" error":"")+(focus===index?" selected":""));
+          cell.style.width=`${size}px`;cell.style.height=`${size}px`;cell.setAttribute("aria-label",`Row ${r+1}, column ${c+1}${value?`, ${value}${conflicts.has(index)?", conflicting duplicate":""}`:", empty"}`);
           cell.disabled=finished||solution[r][c]===value;
           cell.addEventListener("click",()=>{focus=index;draw();});
           cells[index]=cell;board.append(cell);
