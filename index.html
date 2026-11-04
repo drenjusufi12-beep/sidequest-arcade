@@ -145,6 +145,23 @@
     .simon-pad[data-pad="1"] { background: #55c99a; }
     .simon-pad[data-pad="2"] { background: #5689ed; }
     .simon-pad[data-pad="3"] { background: #e9bd4c; }
+    .strategy-board { display: grid; grid-template-columns: repeat(8, min(11vw, 48px)); overflow: hidden; border: 2px solid #554b70; border-radius: 10px; }
+    .strategy-square { width: min(11vw, 48px); height: min(11vw, 48px); display: grid; place-items: center; padding: 0; border: 0; cursor: pointer; font-size: min(8vw, 37px); line-height: 1; }
+    .strategy-square.light { background: #e8dfcb; }
+    .strategy-square.dark { background: #78668c; }
+    .strategy-square.selected { box-shadow: inset 0 0 0 4px #c6f36b; }
+    .strategy-square.target { box-shadow: inset 0 0 0 4px rgba(198,243,107,.8); }
+    .strategy-square.white-piece { color: #fffaf0; text-shadow: 0 2px 3px #312c3a, 0 0 2px #312c3a; }
+    .strategy-square.black-piece { color: #252033; text-shadow: 0 1px 1px rgba(255,255,255,.55); }
+    .strategy-board.checkers .strategy-square { font-size: min(7vw, 32px); }
+    .strategy-board.checkers .white-piece { color: #f58bbd; text-shadow: 0 1px 3px #402b45; }
+    .strategy-board.checkers .black-piece { color: #2a2634; text-shadow: 0 1px 2px rgba(255,255,255,.65); }
+    .strategy-controls { width: min(100%, 420px); }
+    .strategy-controls label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+    .strategy-controls select { padding: 9px 12px; color: var(--text); border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); }
+    .quiz-options { width: min(460px, 100%); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .quiz-options button { min-height: 48px; }
+    .quiz-fact { max-width: 460px; color: var(--muted); line-height: 1.6; text-align: center; }
     .reaction-pad { width: min(400px, 100%); min-height: 150px; display: grid; place-items: center; padding: 20px; border: 0; border-radius: 18px; color: #172027; background: var(--lime); cursor: pointer; font-size: 19px; font-weight: 850; }
     .reaction-pad.waiting { color: white; background: #bd5668; }
     .reaction-pad.ready { color: #12211b; background: #63e3a1; }
@@ -221,7 +238,7 @@
             <h1>Welcome to your<br>sidequest.</h1>
             <p>A pocket-sized arcade of quick games. No downloads, no accounts — just choose something and play.</p>
           </div>
-          <div class="game-count"><strong>22</strong> mini games · free to play</div>
+          <div class="game-count"><strong>26</strong> mini games · free to play</div>
         </div>
         <div class="toolbar">
           <h2>Choose your game</h2>
@@ -294,6 +311,18 @@
           <button class="game-card" data-game="scramble">
             <span class="game-icon tone-lime" aria-hidden="true">🔀</span><span class="card-title">Word Scramble</span><span class="card-desc">Unscramble the letters and solve the clue.</span>
           </button>
+          <button class="game-card" data-game="chess">
+            <span class="game-icon tone-purple" aria-hidden="true">♟️</span><span class="card-title">Chess Coach</span><span class="card-desc">Play a chess bot, choose your challenge, and learn as you go.</span>
+          </button>
+          <button class="game-card" data-game="checkers">
+            <span class="game-icon tone-pink" aria-hidden="true">🔴</span><span class="card-title">Checkers Challenge</span><span class="card-desc">Jump, capture, and crown your pieces against a bot.</span>
+          </button>
+          <button class="game-card" data-game="math">
+            <span class="game-icon tone-blue" aria-hidden="true">➗</span><span class="card-title">Math Sprint</span><span class="card-desc">Practice arithmetic and build a streak of correct answers.</span>
+          </button>
+          <button class="game-card" data-game="geography">
+            <span class="game-icon tone-lime" aria-hidden="true">🌍</span><span class="card-title">Geo Explorer</span><span class="card-desc">Explore countries, capitals, continents, and landmarks.</span>
+          </button>
           <div class="empty-state" id="emptyState" hidden>No games match that search. Try another name.</div>
         </div>
       </section>
@@ -356,7 +385,11 @@
       connect: ["Connect Four", "Take turns dropping discs. Connect four across, down, or diagonally to win."],
       mines: ["Minesweeper", "Reveal every safe square. Right-click or use Flag to mark a suspected mine."],
       simon: ["Simon Says", "Watch the color sequence, then repeat it in the same order."],
-      scramble: ["Word Scramble", "Unscramble the letters and solve the clue to clear the round."]
+      scramble: ["Word Scramble", "Unscramble the letters and solve the clue to clear the round."],
+      chess: ["Chess Coach", "Play as White against a chess bot. Choose a difficulty and learn key chess ideas."],
+      checkers: ["Checkers Challenge", "Play as Red against a checkers bot. Captures are required; crown a piece by reaching the far side."],
+      math: ["Math Sprint", "Choose a math skill, solve ten questions, and build your streak."],
+      geography: ["Geo Explorer", "Test your knowledge of world capitals, continents, and famous landmarks."]
     };
     const gameLevels = Object.create(null);
     let activeGame = "";
@@ -465,6 +498,10 @@
       if (name === "mines") startMinesweeper({ button, message, level });
       if (name === "simon") startSimonSays({ addCleanup, setTimeoutSafe, button, message, level });
       if (name === "scramble") startWordScramble({ button, message, level });
+      if (name === "chess") startChessCoach({ addCleanup, setTimeoutSafe, button, message });
+      if (name === "checkers") startCheckersChallenge({ addCleanup, setTimeoutSafe, button, message });
+      if (name === "math") startMathSprint({ button, message, level, setTimeoutSafe });
+      if (name === "geography") startGeoExplorer({ button, message, level });
       cleanupGame = cleanup;
     }
 
@@ -1745,6 +1782,496 @@
       gameArea.append(scrambled, hint, form);
       message(`Level ${level}: unscramble the letters.`);
       input.focus();
+    }
+
+    function startChessCoach({ addCleanup, setTimeoutSafe, button, message }) {
+      const pieceGlyph = { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙", k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+      const values = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+      const boardElement = document.createElement("div");
+      boardElement.className = "strategy-board";
+      boardElement.setAttribute("role", "grid");
+      boardElement.setAttribute("aria-label", "Chess board, White moves from the bottom");
+      const controls = document.createElement("div");
+      controls.className = "strategy-controls";
+      const label = document.createElement("label");
+      const difficulty = document.createElement("select");
+      difficulty.setAttribute("aria-label", "Chess bot difficulty");
+      [["easy", "Easy · casual moves"], ["medium", "Medium · looks ahead"], ["hard", "Hard · deeper search"]].forEach(([value, text]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        difficulty.append(option);
+      });
+      label.append("Bot difficulty ", difficulty);
+      controls.append(label);
+      let position, selected = -1, legal = [], gameOver = false, thinking = false;
+      const initialBoard = () => [
+        "rnbqkbnr".split(""), "pppppppp".split(""),
+        Array(8).fill(""), Array(8).fill(""), Array(8).fill(""), Array(8).fill(""),
+        "PPPPPPPP".split(""), "RNBQKBNR".split("")
+      ].flat();
+      const start = () => {
+        position = { board: initialBoard(), turn: "w", castle: "KQkq", ep: -1 };
+        selected = -1; legal = []; gameOver = false; thinking = false;
+        draw(); showStatus();
+      };
+      function clone(pos) { return { board: pos.board.slice(), turn: pos.turn, castle: pos.castle, ep: pos.ep }; }
+      function inside(row, col) { return row >= 0 && row < 8 && col >= 0 && col < 8; }
+      function isWhite(piece) { return piece !== "" && piece === piece.toUpperCase(); }
+      function attacked(pos, square, by) {
+        const row = Math.floor(square / 8), col = square % 8, b = pos.board;
+        const pawnRow = row + (by === "w" ? 1 : -1), pawn = by === "w" ? "P" : "p";
+        for (const dc of [-1, 1]) if (inside(pawnRow, col + dc) && b[pawnRow * 8 + col + dc] === pawn) return true;
+        const knight = by === "w" ? "N" : "n";
+        for (const [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])
+          if (inside(row + dr, col + dc) && b[(row + dr) * 8 + col + dc] === knight) return true;
+        const king = by === "w" ? "K" : "k";
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++)
+          if ((dr || dc) && inside(row + dr, col + dc) && b[(row + dr) * 8 + col + dc] === king) return true;
+        for (const [dr, dc, pieces] of [
+          [-1,0,"RQ"],[1,0,"RQ"],[0,-1,"RQ"],[0,1,"RQ"],
+          [-1,-1,"BQ"],[-1,1,"BQ"],[1,-1,"BQ"],[1,1,"BQ"]
+        ]) {
+          let r = row + dr, c = col + dc, distance = 1;
+          while (inside(r, c)) {
+            const piece = b[r * 8 + c];
+            if (piece) {
+              if (isWhite(piece) === (by === "w") && pieces.includes(piece.toUpperCase())) return true;
+              if (distance === 1 && (piece === "P" || piece === "p") && dc !== 0 &&
+                  (by === "w" ? piece === "P" && r === row + 1 : piece === "p" && r === row - 1)) return true;
+              break;
+            }
+            r += dr; c += dc; distance++;
+          }
+        }
+        return false;
+      }
+      function inCheck(pos, side) {
+        const king = pos.board.indexOf(side === "w" ? "K" : "k");
+        return king < 0 || attacked(pos, king, side === "w" ? "b" : "w");
+      }
+      function pseudo(pos) {
+        const moves = [], b = pos.board, side = pos.turn;
+        function add(from, to, extra = {}) {
+          const target = b[to];
+          if (target && (isWhite(target) === (side === "w") || target.toUpperCase() === "K")) return;
+          moves.push({ from, to, ...extra });
+        }
+        for (let from = 0; from < 64; from++) {
+          const piece = b[from];
+          if (!piece || isWhite(piece) !== (side === "w")) continue;
+          const row = Math.floor(from / 8), col = from % 8, kind = piece.toUpperCase();
+          if (kind === "P") {
+            const step = side === "w" ? -1 : 1, next = row + step;
+            if (inside(next, col) && !b[next * 8 + col]) {
+              add(from, next * 8 + col);
+              const twice = row + step * 2;
+              if (row === (side === "w" ? 6 : 1) && !b[twice * 8 + col]) add(from, twice * 8 + col, { double: true });
+            }
+            for (const dc of [-1, 1]) if (inside(next, col + dc)) {
+              const to = next * 8 + col + dc;
+              if ((b[to] && isWhite(b[to]) !== (side === "w")) || to === pos.ep) add(from, to, { enPassant: to === pos.ep });
+            }
+          } else if (kind === "N" || kind === "K") {
+            const steps = kind === "N" ? [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]] :
+              [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+            for (const [dr, dc] of steps) if (inside(row + dr, col + dc)) add(from, (row + dr) * 8 + col + dc);
+            if (kind === "K" && !inCheck(pos, side)) {
+              const enemy = side === "w" ? "b" : "w";
+              if (side === "w" && from === 60) {
+                if (pos.castle.includes("K") && !b[61] && !b[62] && b[63] === "R" && !attacked(pos, 61, enemy) && !attacked(pos, 62, enemy)) add(60, 62, { castle: "K" });
+                if (pos.castle.includes("Q") && !b[59] && !b[58] && !b[57] && b[56] === "R" && !attacked(pos, 59, enemy) && !attacked(pos, 58, enemy)) add(60, 58, { castle: "Q" });
+              }
+              if (side === "b" && from === 4) {
+                if (pos.castle.includes("k") && !b[5] && !b[6] && b[7] === "r" && !attacked(pos, 5, enemy) && !attacked(pos, 6, enemy)) add(4, 6, { castle: "k" });
+                if (pos.castle.includes("q") && !b[3] && !b[2] && !b[1] && b[0] === "r" && !attacked(pos, 3, enemy) && !attacked(pos, 2, enemy)) add(4, 2, { castle: "q" });
+              }
+            }
+          } else {
+            const directions = kind === "B" ? [[-1,-1],[-1,1],[1,-1],[1,1]] : kind === "R" ? [[-1,0],[1,0],[0,-1],[0,1]] : [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+            for (const [dr, dc] of directions) {
+              let r = row + dr, c = col + dc;
+              while (inside(r, c)) {
+                const to = r * 8 + c;
+                if (!b[to]) add(from, to);
+                else { add(from, to); break; }
+                r += dr; c += dc;
+              }
+            }
+          }
+        }
+        return moves;
+      }
+      function play(pos, move) {
+        const next = clone(pos), b = next.board, piece = b[move.from], captured = b[move.to];
+        if (piece.toUpperCase() === "K") next.castle = next.castle.replace(pos.turn === "w" ? /[KQ]/g : /[kq]/g, "");
+        if (move.from === 63 || move.to === 63) next.castle = next.castle.replace("K", "");
+        if (move.from === 56 || move.to === 56) next.castle = next.castle.replace("Q", "");
+        if (move.from === 7 || move.to === 7) next.castle = next.castle.replace("k", "");
+        if (move.from === 0 || move.to === 0) next.castle = next.castle.replace("q", "");
+        b[move.from] = "";
+        if (move.enPassant) b[move.to + (pos.turn === "w" ? 8 : -8)] = "";
+        b[move.to] = piece;
+        if (piece === "P" && Math.floor(move.to / 8) === 0) b[move.to] = "Q";
+        if (piece === "p" && Math.floor(move.to / 8) === 7) b[move.to] = "q";
+        if (move.castle === "K") { b[61] = "R"; b[63] = ""; }
+        if (move.castle === "Q") { b[59] = "R"; b[56] = ""; }
+        if (move.castle === "k") { b[5] = "r"; b[7] = ""; }
+        if (move.castle === "q") { b[3] = "r"; b[0] = ""; }
+        next.ep = move.double ? (move.from + move.to) / 2 : -1;
+        next.turn = pos.turn === "w" ? "b" : "w";
+        return next;
+      }
+      function legalMoves(pos) {
+        return pseudo(pos).filter(move => !inCheck(play(pos, move), pos.turn));
+      }
+      function evaluate(pos) {
+        let score = 0;
+        for (let i = 0; i < 64; i++) {
+          const piece = pos.board[i];
+          if (!piece) continue;
+          const value = values[piece.toLowerCase()];
+          const row = Math.floor(i / 8), col = i % 8;
+          const advance = piece === "P" ? 6 - row : piece === "p" ? row - 1 : 0;
+          const center = 3.5 - (Math.abs(3.5 - row) + Math.abs(3.5 - col)) / 2;
+          score += (isWhite(piece) ? 1 : -1) * (value + advance * 7 + center * (piece.toLowerCase() === "n" || piece.toLowerCase() === "b" ? 5 : 1));
+        }
+        return score;
+      }
+      function search(pos, depth, alpha, beta, ply) {
+        const moves = legalMoves(pos);
+        if (!moves.length) return inCheck(pos, pos.turn) ? (pos.turn === "w" ? -100000 + ply : 100000 - ply) : 0;
+        if (depth === 0) return evaluate(pos);
+        moves.sort((a, b) => ((pos.board[b.to] ? values[pos.board[b.to].toLowerCase()] : 0) - (pos.board[a.to] ? values[pos.board[a.to].toLowerCase()] : 0)));
+        const maximizing = pos.turn === "b";
+        let best = maximizing ? -Infinity : Infinity;
+        for (const move of moves) {
+          const value = search(play(pos, move), depth - 1, alpha, beta, ply + 1);
+          if (maximizing) { best = Math.max(best, value); alpha = Math.max(alpha, best); }
+          else { best = Math.min(best, value); beta = Math.min(beta, best); }
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+      function chooseBotMove(moves) {
+        if (difficulty.value === "easy") return moves[Math.floor(Math.random() * moves.length)];
+        const depth = difficulty.value === "hard" ? 3 : 2;
+        let best = Infinity, choices = [];
+        for (const move of moves) {
+          const score = search(play(position, move), depth - 1, -Infinity, Infinity, 1);
+          if (score < best) { best = score; choices = [move]; }
+          else if (score === best) choices.push(move);
+        }
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+      function showStatus() {
+        if (gameOver) return;
+        const moves = legalMoves(position), check = inCheck(position, position.turn);
+        if (!moves.length) {
+          gameOver = true;
+          message(check ? (position.turn === "w" ? "Checkmate—your bot wins. Restart for another game." : "Checkmate—you win! Restart for another game.") : "Stalemate! The game is a draw. Restart to play again.");
+          return;
+        }
+        message(position.turn === "w" ? `Your move as White.${check ? " Check! Find a safe move for your king." : " Tip: develop pieces and protect your king."}` : `Bot is thinking${check ? "—your king is in check!" : "…"}`);
+      }
+      function draw() {
+        boardElement.replaceChildren();
+        const destinations = new Set(legal.map(move => move.to));
+        for (let i = 0; i < 64; i++) {
+          const piece = position.board[i], cell = button(piece ? pieceGlyph[piece] : "");
+          const row = Math.floor(i / 8), col = i % 8;
+          cell.className = `strategy-square ${(row + col) % 2 ? "dark" : "light"}${piece && isWhite(piece) ? " white-piece" : piece ? " black-piece" : ""}${i === selected ? " selected" : destinations.has(i) ? " target" : ""}`;
+          cell.setAttribute("role", "gridcell");
+          cell.setAttribute("aria-label", `${String.fromCharCode(97 + col)}${8 - row}${piece ? ` ${isWhite(piece) ? "white" : "black"} ${piece.toUpperCase()}` : " empty"}`);
+          cell.disabled = gameOver || thinking;
+          cell.addEventListener("click", () => selectSquare(i));
+          boardElement.append(cell);
+        }
+      }
+      function selectSquare(square) {
+        if (gameOver || thinking || position.turn !== "w") return;
+        const move = legal.find(item => item.from === selected && item.to === square);
+        if (move) { makeMove(move); return; }
+        if (position.board[square] && isWhite(position.board[square])) {
+          selected = square;
+          legal = legalMoves(position).filter(item => item.from === square);
+        } else { selected = -1; legal = []; }
+        draw();
+      }
+      function makeMove(move) {
+        position = play(position, move); selected = -1; legal = [];
+        draw(); showStatus();
+        if (position.turn === "b" && !gameOver) {
+          thinking = true; draw();
+          setTimeoutSafe(() => {
+            if (gameOver || activeGame !== "chess") return;
+            const moves = legalMoves(position);
+            if (moves.length) position = play(position, chooseBotMove(moves));
+            thinking = false; draw(); showStatus();
+          }, 120);
+        }
+      }
+      difficulty.addEventListener("change", start);
+      addCleanup(() => { gameOver = true; });
+      gameArea.append(controls, boardElement);
+      start();
+    }
+
+    function startCheckersChallenge({ addCleanup, setTimeoutSafe, button, message }) {
+      const values = { w: 100, W: 175, b: 100, B: 175 };
+      const boardElement = document.createElement("div");
+      boardElement.className = "strategy-board checkers";
+      boardElement.setAttribute("role", "grid");
+      boardElement.setAttribute("aria-label", "Checkers board, Red moves from the bottom");
+      const controls = document.createElement("div");
+      controls.className = "strategy-controls";
+      const label = document.createElement("label");
+      const difficulty = document.createElement("select");
+      difficulty.setAttribute("aria-label", "Checkers bot difficulty");
+      [["easy", "Easy · casual moves"], ["medium", "Medium · takes captures"], ["hard", "Hard · plans ahead"]].forEach(([value, text]) => {
+        const option = document.createElement("option");
+        option.value = value; option.textContent = text; difficulty.append(option);
+      });
+      label.append("Bot difficulty ", difficulty); controls.append(label);
+      let board, moves = [], selected = -1, gameOver = false, thinking = false;
+      function initialBoard() {
+        const result = Array(64).fill("");
+        for (let row = 0; row < 3; row++) for (let col = 0; col < 8; col++) if ((row + col) % 2) result[row * 8 + col] = "b";
+        for (let row = 5; row < 8; row++) for (let col = 0; col < 8; col++) if ((row + col) % 2) result[row * 8 + col] = "w";
+        return result;
+      }
+      function inside(row, col) { return row >= 0 && row < 8 && col >= 0 && col < 8; }
+      function movesFor(position, side) {
+        const captures = [];
+        function jumps(current, from, path, taken, piece) {
+          const row = Math.floor(current / 8), col = current % 8, directions = piece.toUpperCase() === "W" ? [-1, 1] : [piece === "w" ? -1 : 1];
+          let found = false;
+          for (const dr of directions) for (const dc of [-1, 1]) {
+            const r = row + dr, c = col + dc, lr = row + dr * 2, lc = col + dc * 2;
+            if (!inside(lr, lc) || !inside(r, c)) continue;
+            const jumped = r * 8 + c, landing = lr * 8 + lc;
+            if (current[jumped] && current[jumped].toLowerCase() !== side && !current[landing] && !taken.includes(jumped)) {
+              found = true;
+              const next = current.slice();
+              next[from] = "";
+              next[landing] = piece; next[jumped] = "";
+              const promoted = (piece === "w" && lr === 0) || (piece === "b" && lr === 7);
+              if (promoted) next[landing] = piece.toUpperCase();
+              if (promoted) captures.push({ from, path: [...path, landing], taken: [...taken, jumped] });
+              else jumps(next, landing, [...path, landing], [...taken, jumped], next[landing]);
+            }
+          }
+          if (!found && taken.length) captures.push({ from, path, taken });
+        }
+        for (let from = 0; from < 64; from++) {
+          const piece = position[from];
+          if (!piece || piece.toLowerCase() !== side) continue;
+          jumps(position, from, [], [], piece);
+        }
+        if (captures.length) return captures;
+        const simple = [];
+        for (let from = 0; from < 64; from++) {
+          const piece = position[from];
+          if (!piece || piece.toLowerCase() !== side) continue;
+          const row = Math.floor(from / 8), col = from % 8, directions = piece.toUpperCase() === "W" ? [-1, 1] : [piece === "w" ? -1 : 1];
+          for (const dr of directions) for (const dc of [-1, 1]) {
+            const r = row + dr, c = col + dc;
+            if (inside(r, c) && !position[r * 8 + c]) simple.push({ from, path: [r * 8 + c], taken: [] });
+          }
+        }
+        return simple;
+      }
+      function apply(position, move) {
+        const next = position.slice(), piece = next[move.from];
+        next[move.from] = "";
+        move.taken.forEach(square => { next[square] = ""; });
+        const to = move.path[move.path.length - 1], row = Math.floor(to / 8);
+        next[to] = piece === "w" && row === 0 ? "W" : piece === "b" && row === 7 ? "B" : piece;
+        return next;
+      }
+      function score(position) {
+        return position.reduce((total, piece, index) => {
+          if (!piece) return total;
+          const row = Math.floor(index / 8);
+          const advancement = piece === "w" ? 7 - row : piece === "b" ? row : 0;
+          return total + (piece === "w" || piece === "W" ? 1 : -1) * (values[piece] + advancement * 5);
+        }, 0);
+      }
+      function search(position, side, depth, alpha, beta) {
+        const options = movesFor(position, side);
+        if (!options.length) return side === "w" ? 10000 + depth : -10000 - depth;
+        if (!depth) return score(position);
+        const maximize = side === "b";
+        let best = maximize ? -Infinity : Infinity;
+        for (const move of options) {
+          const value = search(apply(position, move), side === "w" ? "b" : "w", depth - 1, alpha, beta);
+          if (maximize) { best = Math.max(best, value); alpha = Math.max(alpha, best); }
+          else { best = Math.min(best, value); beta = Math.min(beta, best); }
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+      function botMove() {
+        const options = movesFor(board, "b");
+        if (!options.length) return null;
+        if (difficulty.value === "easy") return options[Math.floor(Math.random() * options.length)];
+        const depth = difficulty.value === "hard" ? 4 : 2;
+        let best = -Infinity, choices = [];
+        for (const move of options) {
+          const value = search(apply(board, move), "w", depth - 1, -Infinity, Infinity);
+          if (value > best) { best = value; choices = [move]; }
+          else if (value === best) choices.push(move);
+        }
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+      function finishOrMessage() {
+        moves = movesFor(board, "w");
+        if (!moves.length) {
+          gameOver = true;
+          message(board.some(piece => piece.toLowerCase() === "w") ? "No legal moves—your bot wins. Restart to play again." : "You captured every opposing piece! You win.");
+        } else message(moves.some(move => move.taken.length) ? "Your move. A capture is available, so you must jump." : "Your move as Red. Reach the opposite edge to crown a king.");
+      }
+      function draw() {
+        boardElement.replaceChildren();
+        const targets = new Set(moves.filter(move => move.from === selected).map(move => move.path[move.path.length - 1]));
+        for (let index = 0; index < 64; index++) {
+          const piece = board[index], cell = button(piece ? (piece === "W" || piece === "B" ? "♛" : "●") : "");
+          cell.className = `strategy-square ${(Math.floor(index / 8) + index % 8) % 2 ? "dark" : "light"}${piece === "w" || piece === "W" ? " white-piece" : piece ? " black-piece" : ""}${index === selected ? " selected" : targets.has(index) ? " target" : ""}`;
+          cell.setAttribute("role", "gridcell");
+          cell.setAttribute("aria-label", `Row ${Math.floor(index / 8) + 1}, column ${index % 8 + 1}${piece ? ` ${piece === "w" || piece === "W" ? "red" : "black"} ${piece.toUpperCase() === "W" || piece.toUpperCase() === "B" ? "king" : "checker"}` : " empty"}`);
+          cell.disabled = gameOver || thinking || (Math.floor(index / 8) + index % 8) % 2 === 0;
+          cell.addEventListener("click", () => click(index));
+          boardElement.append(cell);
+        }
+      }
+      function click(square) {
+        if (gameOver || thinking) return;
+        const chosen = moves.find(move => move.from === selected && move.path[move.path.length - 1] === square);
+        if (chosen) {
+          board = apply(board, chosen); selected = -1; draw();
+          const reply = movesFor(board, "b");
+          if (!reply.length) { gameOver = true; message("You win! The bot has no legal moves. Restart for a rematch."); draw(); return; }
+          thinking = true; draw(); message("The bot is thinking…");
+          setTimeoutSafe(() => {
+            if (gameOver || activeGame !== "checkers") return;
+            const move = botMove();
+            if (move) board = apply(board, move);
+            thinking = false; draw(); finishOrMessage();
+          }, 120);
+          return;
+        }
+        if (board[square] && board[square].toLowerCase() === "w") selected = square;
+        else selected = -1;
+        draw();
+      }
+      function reset() { board = initialBoard(); moves = []; selected = -1; gameOver = false; thinking = false; draw(); finishOrMessage(); }
+      difficulty.addEventListener("change", reset);
+      addCleanup(() => { gameOver = true; });
+      gameArea.append(controls, boardElement);
+      reset();
+    }
+
+    function startMathSprint({ button, message, level, setTimeoutSafe }) {
+      const controls = document.createElement("div"), modeLabel = document.createElement("label"), mode = document.createElement("select");
+      controls.className = "strategy-controls";
+      mode.setAttribute("aria-label", "Math skill");
+      [["mixed", "Mixed practice"], ["addition", "Addition"], ["subtraction", "Subtraction"], ["multiplication", "Multiplication"], ["division", "Division"]].forEach(([value, text]) => {
+        const option = document.createElement("option"); option.value = value; option.textContent = text; mode.append(option);
+      });
+      modeLabel.append("Skill ", mode); controls.append(modeLabel);
+      const form = document.createElement("form"), input = document.createElement("input"), submit = button("Check answer", "primary-btn"), prompt = document.createElement("div"), progress = document.createElement("div");
+      form.className = "guess-form"; input.type = "number"; input.step = "1"; input.required = true; input.setAttribute("aria-label", "Your math answer");
+      prompt.className = "scoreline"; progress.className = "quiz-fact"; submit.type = "submit"; form.append(input, submit);
+      let question = 0, score = 0, streak = 0, answer = 0, locked = false;
+      function makeQuestion() {
+        const max = Math.min(20, 5 + level * 2), type = mode.value === "mixed" ? ["addition", "subtraction", "multiplication", "division"][Math.floor(Math.random() * 4)] : mode.value;
+        let a = 1 + Math.floor(Math.random() * max), b = 1 + Math.floor(Math.random() * max), symbol = "+";
+        if (type === "addition") { answer = a + b; symbol = "+"; }
+        if (type === "subtraction") { if (b > a) [a, b] = [b, a]; answer = a - b; symbol = "−"; }
+        if (type === "multiplication") { a = 1 + Math.floor(Math.random() * Math.min(12, max)); b = 1 + Math.floor(Math.random() * Math.min(12, max)); answer = a * b; symbol = "×"; }
+        if (type === "division") { answer = 1 + Math.floor(Math.random() * Math.min(12, max)); b = 1 + Math.floor(Math.random() * Math.min(12, max)); a = answer * b; symbol = "÷"; }
+        prompt.textContent = `${a} ${symbol} ${b} = ?`;
+        progress.textContent = `Question ${question + 1} of 10 · Score ${score} · Streak ${streak}`;
+        input.value = ""; input.disabled = false; submit.disabled = false; locked = false; input.focus();
+      }
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        if (locked) return;
+        locked = true; question++;
+        const correct = Number(input.value) === answer;
+        if (correct) { score++; streak++; message("Correct! Great work."); }
+        else { streak = 0; message(`The answer is ${answer}. Take a moment to check your arithmetic.`); }
+        input.disabled = true; submit.disabled = true;
+        progress.textContent = `Question ${question} of 10 · Score ${score} · Streak ${streak}`;
+        if (question === 10) message(`Sprint complete: ${score}/10 correct, best streak ${streak}. Press Restart to try again.`);
+        else setTimeoutSafe(() => { if (activeGame === "math" && locked) makeQuestion(); }, correct ? 550 : 1100);
+      });
+      mode.addEventListener("change", () => { question = 0; score = 0; streak = 0; makeQuestion(); });
+      gameArea.append(controls, prompt, form, progress);
+      makeQuestion();
+    }
+
+    function startGeoExplorer({ button, message, level }) {
+      const places = [
+        { country: "Japan", capital: "Tokyo", continent: "Asia", landmark: "Mount Fuji" },
+        { country: "Brazil", capital: "Brasília", continent: "South America", landmark: "Christ the Redeemer" },
+        { country: "Egypt", capital: "Cairo", continent: "Africa", landmark: "The Great Pyramid of Giza" },
+        { country: "France", capital: "Paris", continent: "Europe", landmark: "The Eiffel Tower" },
+        { country: "Australia", capital: "Canberra", continent: "Oceania", landmark: "The Great Barrier Reef" },
+        { country: "Canada", capital: "Ottawa", continent: "North America", landmark: "Banff National Park" },
+        { country: "India", capital: "New Delhi", continent: "Asia", landmark: "The Taj Mahal" },
+        { country: "Kenya", capital: "Nairobi", continent: "Africa", landmark: "The Maasai Mara" },
+        { country: "Greece", capital: "Athens", continent: "Europe", landmark: "The Acropolis" },
+        { country: "Mexico", capital: "Mexico City", continent: "North America", landmark: "Chichén Itzá" },
+        { country: "Argentina", capital: "Buenos Aires", continent: "South America", landmark: "Iguazú Falls" },
+        { country: "New Zealand", capital: "Wellington", continent: "Oceania", landmark: "Milford Sound" }
+      ];
+      const prompt = document.createElement("div"), optionsBox = document.createElement("div"), fact = document.createElement("div"), next = button("Next question", "primary-btn");
+      prompt.className = "scoreline"; optionsBox.className = "quiz-options"; fact.className = "quiz-fact"; next.hidden = true;
+      let question = 0, score = 0, current, field, answered = false;
+      const fields = [
+        ["capital", place => `What is the capital of ${place.country}?`],
+        ["continent", place => `On which continent is ${place.country}?`],
+        ["landmark", place => `Which landmark is in ${place.country}?`],
+        ["country", place => `Which country has ${place.capital} as its capital?`]
+      ];
+      function newQuestion() {
+        if (question >= 10) {
+          prompt.textContent = `Challenge complete · ${score}/10 correct`;
+          optionsBox.replaceChildren(); fact.textContent = "Press Restart to explore the world again."; next.hidden = true; return;
+        }
+        answered = false; next.hidden = true; fact.textContent = "";
+        const [key, makePrompt] = fields[(question + level - 1) % fields.length];
+        current = places[Math.floor(Math.random() * places.length)]; field = key;
+        prompt.textContent = `Question ${question + 1} of 10 · ${makePrompt(current)}`;
+        const distractors = places.filter(place => place !== current).map(place => place[key]);
+        const choices = [current[key]];
+        while (choices.length < 4) {
+          const choice = distractors[Math.floor(Math.random() * distractors.length)];
+          if (!choices.includes(choice)) choices.push(choice);
+        }
+        choices.sort(() => Math.random() - .5);
+        optionsBox.replaceChildren();
+        choices.forEach(choice => {
+          const option = button(choice);
+          option.addEventListener("click", () => {
+            if (answered) return;
+            answered = true; question++;
+            const correct = choice === current[field];
+            if (correct) { score++; message("Correct! Nice geography."); }
+            else message(`Not quite—the answer is ${current[field]}.`);
+            fact.textContent = `${current.country} · Capital: ${current.capital} · ${current.continent} · Landmark: ${current.landmark}. Score: ${score}/${question}.`;
+            optionsBox.querySelectorAll("button").forEach(item => { item.disabled = true; });
+            next.hidden = false;
+            if (question === 10) next.textContent = "See final score";
+          });
+          optionsBox.append(option);
+        });
+      }
+      next.addEventListener("click", newQuestion);
+      gameArea.append(prompt, optionsBox, fact, next);
+      message(`Level ${level}: explore the world in a 10-question challenge.`);
+      newQuestion();
     }
 
     function startSkyPatrol({ addCleanup, button, message, level }) {
