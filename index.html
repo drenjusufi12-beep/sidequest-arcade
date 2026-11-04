@@ -167,6 +167,13 @@
     .reaction-pad.ready { color: #12211b; background: #63e3a1; }
     .guess-form { display: flex; gap: 8px; }
     .guess-form input { width: 100px; padding: 10px 12px; color: var(--text); border: 1px solid var(--line); border-radius: 10px; background: #111522; }
+    .word-keyboard { width: min(460px, 100%); display: grid; gap: 6px; }
+    .word-key-row { display: flex; justify-content: center; gap: 4px; }
+    .word-key { min-width: 0; min-height: 42px; flex: 1; padding: 5px 3px; border: 0; border-radius: 7px; color: var(--text); background: #555b69; cursor: pointer; font-size: 13px; font-weight: 800; }
+    .word-key.wide { flex: 1.5; font-size: 10px; }
+    .word-key.exact { background: #78c779; }
+    .word-key.present { background: #d4ad55; }
+    .word-key.miss { background: #3a4051; color: #b7bdc9; }
     .mole-board { display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; }
     .mole-hole { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 50%; background: #111522; cursor: pointer; font-size: 29px; }
     .mole-hole.active { background: rgba(198,243,107,.17); }
@@ -1454,25 +1461,56 @@
 
     function startWordSpark({ button, message, level }) {
       const answers=["PLANT","BRAVE","CLOUD","DREAM","FLAME","GRAPE","HOUSE","JUICE","KNIFE","LEMON","MUSIC","NORTH","OCEAN","PAINT","QUEST","RIVER","STONE","TIGER","UNITY","VIVID","WATER","YOUTH","ZEBRA","BLOOM","CHARM","DELTA","EMBER","FROST","GIANT","HONEY"];
+      const accepted = new Set(answers.concat("ABOUT ABOVE ACTOR ACUTE ADMIT ADOPT AFTER AGAIN AGENT AGREE AHEAD ALARM ALBUM ALERT ALIVE ALLOW ALONE ALONG ALTER AMONG ANGLE ANGRY APART APPLE APPLY ARENA ARGUE ARISE ARMOR ASIDE ASSET AUDIO AVOID AWARD AWARE BADGE BASIC BEACH BEGIN BELOW BENCH BIRTH BLACK BLAME BLANK BLAST BLAZE BLEND BLIND BLOCK BLOOD BOARD BONUS BOUND BRAIN BRAND BRAVE BREAD BREAK BRICK BRIDE BRIEF BRING BROAD BROKE BROWN BRUSH BUILD BUILT BUYER CABIN CABLE CARRY CATCH CAUSE CHAIR CHAMP CHANCE CHANGE CHART CHASE CHEAP CHECK CHEEK CHESS CHIEF CHILD CHINA CHOICE CIVIL CLAIM CLASS CLEAN CLEAR CLERK CLICK CLIMB CLOCK CLOSE CLOUD COACH COAST COLOR COMET COMIC COUNT COURT COVER CRAFT CRASH CREAM CRIME CROSS CROWD CROWN CURVE CYCLE DAILY DANCE DEALT DEATH DECOR DELAY DEPTH DIARY DIGIT DIRTY DOING DOUBT DOZEN DRAFT DRAMA DREAM DRESS DRINK DRIVE DROWN EAGER EARLY EARTH EIGHT ELDER ELECT ENJOY ENTER ENTRY EQUAL ERROR EVENT EVERY EXACT EXIST EXTRA FAITH FALSE FANCY FAVOR FEAST FENCE FEVER FIELD FIFTY FIGHT FINAL FIRST FIXED FLAME FLASH FLEET FLOOR FLOUR FOCUS FORCE FORTH FORTY FOUND FRAME FRESH FRONT FRUIT FUNNY GIANT GIVEN GLASS GLOBE GLOOM GLOVE GRACE GRADE GRAIN GRAND GRANT GRASS GREAT GREEN GROUP GROWN GUARD GUESS GUEST GUIDE HABIT HAPPY HEART HEAVY HELLO HONEY HONOR HORSE HOTEL HUMAN HUMOR IDEAL IMAGE INDEX INNER INPUT ISSUE JUDGE JUICE KNIFE KNOCK KNOWN LABEL LARGE LATER LAUGH LAYER LEARN LEAST LEAVE LEGAL LEVEL LIGHT LIMIT LUNCH LYING MAGIC MAJOR MAKER MARCH MATCH MAYBE METAL MIGHT MINOR MODEL MONEY MONTH MORAL MOTOR MOUNT MOUSE MOUTH MOVIE MUSIC NEVER NIGHT NOBLE NOISE NORTH NOVEL NURSE OCCUR OCEAN OFFER OFTEN ORDER OTHER OWNER PAINT PANEL PAPER PARTY PEACE PHASE PHONE PHOTO PIECE PILOT PITCH PLACE PLANE PLANT PLATE POINT POWER PRESS PRICE PRIDE PRIME PRINT PRIOR PROOF PROUD QUEEN QUICK QUIET QUITE QUOTE RADIO RAISE RANGE RAPID REACH READY RELAX REPLY RIGHT RIVER ROUND ROYAL SCALE SCENE SCOPE SCORE SENSE SERVE SEVEN SHALL SHAPE SHARE SHARP SHEET SHELF SHELL SHIFT SHINE SHIRT SHOCK SHOOT SHORT SHOWN SIGHT SINCE SKILL SLEEP SLICE SLIDE SMALL SMART SMILE SMOKE SOLID SOLVE SORRY SOUND SOUTH SPACE SPEAK SPEED SPEND SPENT SPLIT SPOKE SPORT STAFF STAGE STAND START STATE STEAM STEEL STILL STOCK STONE STOOD STORE STORM STORY STRIP STUDY STUFF SUGAR SUPER SWEET TABLE TAKEN TEACH THANK THEME THERE THESE THICK THING THINK THIRD THOSE THREE THREW THROW TIGHT TIRED TITLE TODAY TOGETHER TOKEN TOOLS TOOTH TOPIC TOTAL TOUCH TOUGH TOWER TRACK TRADE TRAIN TREAT TREND TRIAL TRIBE TRICK TRIED TRUCK TRULY TRUST TRUTH TWICE UNDER UNION UNITY UNTIL UPPER UPSET URBAN USUAL VALUE VIDEO VISIT VOICE WASTE WATCH WATER WHEEL WHERE WHICH WHILE WHITE WHOLE WHOSE WOMAN WORLD WORRY WORSE WORST WORTH WOULD WRITE WRONG YIELD YOUNG YOUTH".split(/\s+/)));
+      ["CRANE","SLATE","STARE","ARISE","ADIEU","REACT","TRACE","ROAST","AUDIO","LEAST"].forEach(word => accepted.add(word));
       const answer=answers[(level*17+Math.floor(Math.random()*answers.length))%answers.length];
-      const maxGuesses=Math.max(4,6-Math.floor((level-1)/30));
+      const maxGuesses=6;
       const form=document.createElement("form"),input=document.createElement("input"),submit=button("Check word","primary-btn");
-      const board=document.createElement("div");board.style.cssText="display:grid;gap:7px;width:min(380px,100%)";
-      form.className="guess-form";input.maxLength=5;input.minLength=5;input.placeholder="5 letters";input.autocomplete="off";input.setAttribute("aria-label","Enter a five-letter word");submit.type="submit";form.append(input,submit);
+      const board=document.createElement("div"),keyboard=document.createElement("div"),keyStates=Object.create(null),keyButtons=Object.create(null);
+      board.style.cssText="display:grid;gap:7px;width:min(380px,100%)";keyboard.className="word-keyboard";keyboard.setAttribute("aria-label","On-screen word keyboard");
+      form.className="guess-form";input.type="text";input.maxLength=5;input.minLength=5;input.placeholder="5 letters";input.autocomplete="off";input.autocapitalize="characters";input.spellcheck=false;input.setAttribute("aria-label","Enter a five-letter word");submit.type="submit";form.append(input,submit);
       let guesses=0,ended=false;
+      function updateKey(char,state) {
+        const rank={miss:1,present:2,exact:3};
+        if(!keyStates[char]||rank[state]>rank[keyStates[char]])keyStates[char]=state;
+        const key=keyButtons[char];
+        if(key){key.classList.remove("exact","present","miss");key.classList.add(keyStates[char]);}
+      }
+      function pressKey(value) {
+        if(ended||input.disabled)return;
+        if(value==="ENTER"){form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));return;}
+        if(value==="BACKSPACE"){input.value=input.value.slice(0,-1);input.focus();return;}
+        if(input.value.length<5){input.value+=value;input.focus();}
+      }
+      for(const rowLetters of ["QWERTYUIOP","ASDFGHJKL"]) {
+        const row=document.createElement("div");row.className="word-key-row";
+        for(const char of rowLetters) {
+          const key=button(char);key.className="word-key";key.setAttribute("aria-label",`Type ${char}`);keyButtons[char]=key;
+          key.addEventListener("click",()=>pressKey(char));row.append(key);
+        }
+        keyboard.append(row);
+      }
+      const bottomRow=document.createElement("div");bottomRow.className="word-key-row";
+      for(const value of ["ENTER","Z","X","C","V","B","N","M","BACKSPACE"]) {
+        const key=button(value==="BACKSPACE"?"⌫":value);key.className="word-key"+(value==="ENTER"||value==="BACKSPACE"?" wide":"");
+        key.setAttribute("aria-label",value==="BACKSPACE"?"Backspace":value==="ENTER"?"Enter guess":`Type ${value}`);
+        if(value.length===1)keyButtons[value]=key;
+        key.addEventListener("click",()=>pressKey(value));bottomRow.append(key);
+      }
+      keyboard.append(bottomRow);
       function addGuess(word){
         const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:repeat(5,1fr);gap:7px";
-        const remaining={};for(const char of answer)remaining[char]=(remaining[char]||0)+1;
+        const remaining=Object.create(null);for(const char of answer)remaining[char]=(remaining[char]||0)+1;
         const states=Array(5).fill("miss");
         for(let i=0;i<5;i++)if(word[i]===answer[i]){states[i]="exact";remaining[word[i]]--;}
         for(let i=0;i<5;i++)if(states[i]!=="exact"&&remaining[word[i]]>0){states[i]="present";remaining[word[i]]--;}
-        word.split("").forEach((char,i)=>{const tile=document.createElement("span");tile.textContent=char;tile.style.cssText="display:grid;place-items:center;height:48px;border-radius:9px;font-weight:850;font-size:20px;background:"+(states[i]==="exact"?"#78c779":states[i]==="present"?"#d4ad55":"#3a4051");row.append(tile);});
+        word.split("").forEach((char,i)=>{const tile=document.createElement("span");tile.textContent=char;tile.className=`word-key ${states[i]}`;tile.style.cssText="display:grid;place-items:center;height:48px;border-radius:9px;font-weight:850;font-size:20px;cursor:default";row.append(tile);updateKey(char,states[i]);});
         board.append(row);
       }
       form.addEventListener("submit",event=>{
         event.preventDefault();const word=input.value.trim().toUpperCase();
         if(!/^[A-Z]{5}$/.test(word)){message("Enter exactly five letters.");return;}
-        if(!answers.includes(word)){message("That word isn't in this game's word list. Try another.");return;}
+        if(!accepted.has(word)){message("That word isn't in the accepted word list. Try another.");return;}
         if(ended)return;
         guesses++;addGuess(word);
         if(word===answer){ended=true;input.disabled=true;submit.disabled=true;message(`Level ${level} cleared in ${guesses} ${guesses===1?"guess":"guesses"}! Pick the next level above.`);}
@@ -1480,8 +1518,8 @@
         else message(`${maxGuesses-guesses} guesses left. Green is correct; gold is in the word.`);
         input.value="";
       });
-      gameArea.append(form,board);
-      message(`Level ${level}: solve the five-letter word in ${maxGuesses} guesses.`);
+      gameArea.append(form,board,keyboard);
+      message(`Level ${level}: solve the five-letter word in six guesses. Green is correct; gold is in the word; gray is absent.`);
     }
 
     function startConnectFour({ button, message }) {
