@@ -151,6 +151,18 @@
     .strategy-square.dark { background: #78668c; }
     .strategy-square.selected { box-shadow: inset 0 0 0 4px #c6f36b; }
     .strategy-square.target { box-shadow: inset 0 0 0 4px rgba(198,243,107,.8); }
+    .strategy-square.last-move { animation: chessLand .24s ease-out; }
+    .strategy-piece { display: block; transform: translateZ(0); transition: transform .24s cubic-bezier(.2,.8,.2,1), opacity .18s ease; }
+    .strategy-piece.moving { animation: chessMove .24s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes chessMove { from { transform: translate(var(--move-x), var(--move-y)) scale(.9); opacity: .5; } to { transform: translate(0,0) scale(1); opacity: 1; } }
+    @keyframes chessLand { from { filter: brightness(1.7); } to { filter: brightness(1); } }
+    .mini-game-canvas { display: block; width: min(760px, 100%); height: auto; border: 1px solid var(--line); border-radius: 16px; background: #101523; touch-action: none; }
+    .mini-grid { display: grid; grid-template-columns: repeat(var(--grid-size, 4), min(17vw, 72px)); gap: 7px; justify-content: center; }
+    .mini-tile { width: min(17vw, 72px); height: min(17vw, 72px); display: grid; place-items: center; padding: 4px; font-size: clamp(14px, 3.8vw, 24px); font-weight: 850; }
+    .mini-hud { width: min(760px, 100%); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--muted); }
+    .mini-hud strong { color: var(--lime); }
+    .game-area > .mini-question { width: min(640px, 100%); padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel-2); font-size: 19px; font-weight: 750; text-align: center; }
+    .game-area > .mini-options { width: min(640px, 100%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
     .strategy-square.white-piece { color: #fffaf0; text-shadow: 0 2px 3px #312c3a, 0 0 2px #312c3a; }
     .strategy-square.black-piece { color: #252033; text-shadow: 0 1px 1px rgba(255,255,255,.55); }
     .strategy-board.checkers .strategy-square { font-size: min(7vw, 32px); }
@@ -264,7 +276,7 @@
             <h1>Welcome to your<br>sidequest.</h1>
             <p>A pocket-sized arcade of quick games. No downloads, no accounts — just choose something and play.</p>
           </div>
-          <div class="game-count"><strong>38</strong> mini games · free to play</div>
+          <div class="game-count"><strong>68</strong> mini games · free to play</div>
         </div>
         <div class="toolbar">
           <h2>Choose your game</h2>
@@ -465,8 +477,52 @@
       orbit: ["Orbit Defender", "Pilot your ship, blast debris, and defend your orbit."],
       music: ["Note Navigator", "Name notes on the treble staff before time runs out."]
     };
+    const newArcadeGames = {
+      stardrift: { title: "Stardrift Rally", description: "Thread a neon starship through an ever-changing asteroid field.", icon: "🚀", tone: "tone-blue", mode: "dodge" },
+      cometcatch: { title: "Comet Catcher", description: "Catch icy comets, dodge hot fragments, and chain clean catches.", icon: "☄️", tone: "tone-purple", mode: "catch" },
+      neonhoops: { title: "Neon Hoops", description: "Read the moving shot meter and sink a streak of long-range shots.", icon: "🏀", tone: "tone-pink", mode: "timing" },
+      cloudhopper: { title: "Cloud Hopper", description: "Hop between drifting clouds without falling into the storm.", icon: "☁️", tone: "tone-blue", mode: "dodge" },
+      orbitslinger: { title: "Orbit Slinger", description: "Set your launch angle and power to sling a satellite through gates.", icon: "🪃", tone: "tone-lime", mode: "aim" },
+      reefrescue: { title: "Reef Rescue", description: "Collect drifting sea life while leaving the ocean litter behind.", icon: "🐠", tone: "tone-blue", mode: "catch", multiplayer: true },
+      astroorchard: { title: "Astro Orchard", description: "Harvest glowing fruit from a zero-gravity garden before it floats away.", icon: "🍒", tone: "tone-lime", mode: "catch", multiplayer: true },
+      pixelpounce: { title: "Pixel Pounce", description: "Spot the blinking pixel creature and tag it before it vanishes.", icon: "👾", tone: "tone-purple", mode: "quick", multiplayer: true },
+      meteorminers: { title: "Meteor Miners", description: "Mine the shining crystals and avoid cracking the unstable rocks.", icon: "⛏️", tone: "tone-pink", mode: "aim" },
+      skykiterally: { title: "Sky Kite Rally", description: "Ride the wind, scoop up ribbons, and steer around storm clouds.", icon: "🪁", tone: "tone-blue", mode: "dodge" },
+      photonpaths: { title: "Photon Paths", description: "Guide a beam of light through mirrors to power the exit.", icon: "🔦", tone: "tone-lime", mode: "path" },
+      crystalcircuit: { title: "Crystal Circuit", description: "Rotate crystal tiles to connect energy from source to beacon.", icon: "💎", tone: "tone-purple", mode: "circuit" },
+      runerhythm: { title: "Rune Rhythm", description: "Memorize a glowing rune pattern and repeat it to open the vault.", icon: "🔮", tone: "tone-pink", mode: "sequence" },
+      colorclash: { title: "Color Clash", description: "Choose the ink color, not the word—stay sharp as the pace climbs.", icon: "🎨", tone: "tone-blue", mode: "quick", multiplayer: true },
+      ciphersprint: { title: "Cipher Sprint", description: "Crack a shifting symbol code with feedback after each guess.", icon: "🗝️", tone: "tone-lime", mode: "code" },
+      logiclock: { title: "Logic Lock", description: "Use clues about the hidden digits to open a tricky number lock.", icon: "🔐", tone: "tone-purple", mode: "code", multiplayer: true },
+      wordweaver: { title: "Word Weaver", description: "Build as many real words as you can from a handful of letters.", icon: "🧵", tone: "tone-pink", mode: "word", multiplayer: true },
+      rhymetime: { title: "Rhyme Time", description: "Pick the word that rhymes, then race the clock for a streak.", icon: "🎤", tone: "tone-blue", mode: "quiz", multiplayer: true },
+      fractionforge: { title: "Fraction Forge", description: "Compare, reduce, and combine fractions in a quick-fire workshop.", icon: "🧁", tone: "tone-lime", mode: "quiz", multiplayer: true },
+      decimaldash: { title: "Decimal Dash", description: "Solve fast decimal challenges and keep your calculation streak alive.", icon: "🧮", tone: "tone-purple", mode: "quiz", multiplayer: true },
+      planetorder: { title: "Planet Order", description: "Put the planets in orbital order from the Sun to the outer edge.", icon: "🪐", tone: "tone-blue", mode: "order" },
+      fossilfinder: { title: "Fossil Finder", description: "Use warm-and-cold clues to uncover a fossil hidden in the dig site.", icon: "🦴", tone: "tone-lime", mode: "grid" },
+      mythexplorer: { title: "Myth Explorer", description: "Travel through original folklore-inspired riddles and world facts.", icon: "🧭", tone: "tone-purple", mode: "quiz", multiplayer: true },
+      anatomydash: { title: "Anatomy Dash", description: "Match body systems and organs before the next question arrives.", icon: "🫀", tone: "tone-pink", mode: "quiz" },
+      soundsafari: { title: "Sound Safari", description: "Listen to a short sequence of tones and play it back by ear.", icon: "🦜", tone: "tone-blue", mode: "sequence", multiplayer: true },
+      rhythmrover: { title: "Rhythm Rover", description: "Tap the beat as your rover races across a musical moon.", icon: "🥁", tone: "tone-purple", mode: "timing", multiplayer: true },
+      gardenguardians: { title: "Garden Guardians", description: "Protect a tiny garden by tapping pests before they reach it.", icon: "🌻", tone: "tone-lime", mode: "quick", multiplayer: true },
+      treasuretides: { title: "Treasure Tides", description: "Plan a safe route through a tide-shifting maze to reach the chest.", icon: "🗺️", tone: "tone-blue", mode: "path" },
+      roborescue: { title: "Robo Rescue", description: "Program a short sequence of moves to guide a bot to its stranded pal.", icon: "🤖", tone: "tone-pink", mode: "path" },
+      potionfactory: { title: "Potion Factory", description: "Remember the recipe, then mix the ingredients in the right order.", icon: "🧪", tone: "tone-purple", mode: "sequence" }
+    };
     const gameLevels = Object.create(null);
-    const gamesWithoutLevels = new Set(["chess", "checkers"]);
+    const gamesWithoutLevels = new Set(["chess", "checkers", "geography", "scramble"]);
+    const localPlayerModes = Object.create(null);
+    Object.entries(newArcadeGames).forEach(([name, game]) => {
+      games[name] = [game.title, game.description];
+      gamesWithoutLevels.add(name);
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "game-card";
+      card.dataset.game = name;
+      card.innerHTML = `<span class="game-icon ${game.tone}" aria-hidden="true">${game.icon}</span><span class="card-title">${game.title}</span><span class="card-desc">${game.description}</span>`;
+      document.getElementById("gameGrid").insertBefore(card, document.getElementById("emptyState"));
+    });
+    document.querySelector(".game-count strong").textContent = String(document.querySelectorAll(".game-card").length);
     let activeGame = "";
     let cleanupGame = () => {};
     let restartCurrentGame = () => {};
@@ -589,6 +645,7 @@
       if (name === "rps") startRockPaperScissors({ button, message, level });
       if (name === "orbit") startOrbitDefender({ addCleanup, button, message, level });
       if (name === "music") startNoteNavigator({ setIntervalSafe, setTimeoutSafe, button, message, level });
+      if (newArcadeGames[name]) startFreshArcadeGame({ name, config: newArcadeGames[name], addCleanup, setIntervalSafe, setTimeoutSafe, button, message });
       cleanupGame = cleanup;
     }
 
@@ -758,7 +815,11 @@
       board.className = "memory-board";
       const score = document.createElement("div");
       score.className = "scoreline";
-      let opened = [], matched = new Set(), moves = 0, locked = false;
+      const modeLabel=document.createElement("label"),mode=document.createElement("select");
+      mode.setAttribute("aria-label","Memory Match game mode");
+      [["solo","Solo"],["duo","2 players, same device"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;mode.append(option);});
+      let twoPlayers=Boolean(localPlayerModes.memory),opened = [], matched = new Set(), moves = 0, locked = false, turn = 0, pairs=[0,0];
+      mode.value=twoPlayers?"duo":"solo";modeLabel.append("Mode ",mode);mode.addEventListener("change",()=>{localPlayerModes.memory=mode.value==="duo";restartCurrentGame();});
       const cards = deck.map((symbol, index) => {
         const card = button("?", "memory-card hidden");
         card.setAttribute("aria-label", "Hidden card");
@@ -770,17 +831,22 @@
             moves++;
             if (deck[opened[0]] === deck[opened[1]]) {
               opened.forEach(i => { matched.add(i); cards[i].classList.add("matched"); });
+              pairs[turn]++;
               opened = [];
-              if (matched.size === deck.length) message(`Level ${level} cleared in ${moves} moves! Pick the next level above.`);
+              if (matched.size === deck.length) {
+                if(twoPlayers)message(pairs[0]===pairs[1]?`It's a tie! ${pairs[0]} pairs each.`:`Player ${pairs[0]>pairs[1]?1:2} wins ${pairs[0]}–${pairs[1]}!`);
+                else message(`Level ${level} cleared in ${moves} moves! Pick the next level above.`);
+              } else message(twoPlayers?`Player ${turn+1} found a pair and gets another turn!`:"Pair found! Keep going.");
             } else {
               locked = true;
               const pair = [...opened]; opened = [];
               setTimeoutSafe(() => {
                 pair.forEach(i => { cards[i].textContent = "?"; cards[i].classList.add("hidden"); cards[i].setAttribute("aria-label", "Hidden card"); });
                 locked = false;
+                if(twoPlayers){turn=1-turn;message(`Player ${turn+1}'s turn.`);}
               }, 700);
             }
-            score.innerHTML = `Moves <strong>${moves}</strong> · Pairs <strong>${matched.size / 2}/${pairCount}</strong>`;
+            score.innerHTML = twoPlayers?`P1 <strong>${pairs[0]}</strong> · P2 <strong>${pairs[1]}</strong> · ${matched.size/2}/${pairCount} pairs`: `Moves <strong>${moves}</strong> · Pairs <strong>${matched.size / 2}/${pairCount}</strong>`;
           }
         });
         board.append(card);
@@ -789,9 +855,9 @@
       let timers = [];
       function setTimeoutSafe(fn, ms) { const id = window.setTimeout(fn, ms); timers.push(id); }
       addCleanup(() => timers.forEach(window.clearTimeout));
-      score.innerHTML = `Level ${level} · Moves <strong>0</strong> · Pairs <strong>0/${pairCount}</strong>`;
-      gameArea.append(score, board);
-      message(`Find all ${pairCount} pairs to clear this level.`);
+      score.innerHTML = twoPlayers?`P1 <strong>0</strong> · P2 <strong>0</strong> · 0/${pairCount} pairs`:`Level ${level} · Moves <strong>0</strong> · Pairs <strong>0/${pairCount}</strong>`;
+      gameArea.append(modeLabel,score, board);
+      message(twoPlayers?`Player 1 starts. Find pairs on the same board; a match earns another turn.`:`Find all ${pairCount} pairs to clear this level.`);
     }
 
     function startTicTacToe({ button, message, level }) {
@@ -971,9 +1037,13 @@
       score.className = "scoreline";
       const keys = new Set();
       let playerY = 145, aiY = 145, ballX = 320, ballY = 180, vx = 4, vy = 2.5;
-      let playerScore = 0, aiScore = 0, running = true;
+      let playerScore = 0, aiScore = 0, running = true, twoPlayers = Boolean(localPlayerModes.pong);
       const paddleH = 70, paddleW = 10;
       const winningScore = Math.min(15, 3 + Math.ceil(level / 10));
+      const modeLabel=document.createElement("label"),mode=document.createElement("select");
+      mode.setAttribute("aria-label","Pong game mode");
+      [["solo","Solo vs computer"],["duo","2 players, same device"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;mode.append(option);});
+      mode.value=twoPlayers?"duo":"solo";modeLabel.append("Mode ",mode);mode.addEventListener("change",()=>{localPlayerModes.pong=mode.value==="duo";restartCurrentGame();});
       function keydown(e) { if (noteModal.classList.contains("open")) return; if (["ArrowUp","ArrowDown","w","s","W","S"].includes(e.key)) { e.preventDefault(); keys.add(e.key.toLowerCase()); } }
       function keyup(e) { keys.delete(e.key.toLowerCase()); }
       document.addEventListener("keydown", keydown); document.addEventListener("keyup", keyup);
@@ -983,16 +1053,19 @@
         ctx.clearRect(0, 0, 640, 360);
         ctx.setLineDash([8, 10]); ctx.strokeStyle = "rgba(255,255,255,.2)"; ctx.beginPath(); ctx.moveTo(320, 0); ctx.lineTo(320, 360); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = "#c6f36b"; ctx.fillRect(22, playerY, paddleW, paddleH);
-        ctx.fillStyle = "#a78bfa"; ctx.fillRect(608, aiY, paddleW, paddleH);
+        ctx.fillStyle = twoPlayers ? "#f58bbd" : "#a78bfa"; ctx.fillRect(608, aiY, paddleW, paddleH);
         ctx.beginPath(); ctx.arc(ballX, ballY, 8, 0, Math.PI * 2); ctx.fillStyle = "#f5f6fb"; ctx.fill();
         ctx.font = "bold 30px system-ui"; ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,.6)";
         ctx.fillText(playerScore, 270, 45); ctx.fillText(aiScore, 370, 45);
       }
       function tick() {
         if (!running) return;
-        if (keys.has("arrowup") || keys.has("w")) playerY = Math.max(0, playerY - 6);
-        if (keys.has("arrowdown") || keys.has("s")) playerY = Math.min(360 - paddleH, playerY + 6);
-        aiY += (ballY - paddleH / 2 - aiY) * Math.min(.15, .06 + level * .0009);
+        if (keys.has("w") || (!twoPlayers && keys.has("arrowup"))) playerY = Math.max(0, playerY - 6);
+        if (keys.has("s") || (!twoPlayers && keys.has("arrowdown"))) playerY = Math.min(360 - paddleH, playerY + 6);
+        if(twoPlayers){
+          if(keys.has("arrowup")||keys.has("p2arrowup"))aiY=Math.max(0,aiY-6);
+          if(keys.has("arrowdown")||keys.has("p2arrowdown"))aiY=Math.min(360-paddleH,aiY+6);
+        }else aiY += (ballY - paddleH / 2 - aiY) * Math.min(.15, .06 + level * .0009);
         aiY = Math.max(0, Math.min(360 - paddleH, aiY));
         ballX += vx; ballY += vy;
         if (ballY <= 8 || ballY >= 352) vy *= -1;
@@ -1000,22 +1073,27 @@
         if (vx > 0 && ballX > 600 && ballX < 615 && ballY > aiY - 3 && ballY < aiY + paddleH + 3) { vx = -Math.abs(vx) * 1.04; vy += (ballY - (aiY + paddleH / 2)) * .08; }
         if (ballX < 0) { aiScore++; resetBall(1); }
         if (ballX > 640) { playerScore++; resetBall(-1); }
-        score.innerHTML = `You <strong>${playerScore}</strong> · Computer <strong>${aiScore}</strong>`;
-        if (playerScore >= winningScore || aiScore >= winningScore) { running = false; message(playerScore >= winningScore ? `Level ${level} cleared! Pick the next level above.` : `Computer wins level ${level}. Press Restart to try again.`); }
+        score.innerHTML = `${twoPlayers?"Player 1":"You"} <strong>${playerScore}</strong> · ${twoPlayers?"Player 2":"Computer"} <strong>${aiScore}</strong>`;
+        if (playerScore >= winningScore || aiScore >= winningScore) { running = false; message(twoPlayers?(playerScore>aiScore?"Player 1 wins the match!":"Player 2 wins the match!"):(playerScore >= winningScore ? `Level ${level} cleared! Pick the next level above.` : `Computer wins level ${level}. Press Restart to try again.`)); }
         draw();
       }
       const mobile = document.createElement("div"); mobile.className = "inline-controls";
       const up = button("▲"); const down = button("▼");
       up.setAttribute("aria-label", "Move paddle up"); down.setAttribute("aria-label", "Move paddle down");
       const press = (key, active) => { if (active) keys.add(key); else keys.delete(key); };
-      for (const [el, key] of [[up, "arrowup"], [down, "arrowdown"]]) {
+      for (const [el, key] of [[up, twoPlayers ? "w" : "arrowup"], [down, twoPlayers ? "s" : "arrowdown"]]) {
         el.addEventListener("pointerdown", e => { e.preventDefault(); press(key, true); });
         ["pointerup", "pointerleave", "pointercancel"].forEach(type => el.addEventListener(type, () => press(key, false)));
       }
       mobile.append(up, down);
-      gameArea.append(score, canvas, mobile);
+      if(twoPlayers){
+        const rightUp=button("P2 ▲"),rightDown=button("P2 ▼");
+        for(const [el,key] of [[rightUp,"arrowup"],[rightDown,"arrowdown"]]){el.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(`p2${key}`);});["pointerup","pointerleave","pointercancel"].forEach(type=>el.addEventListener(type,()=>keys.delete(`p2${key}`)));}
+        mobile.append(rightUp,rightDown);
+      }
+      gameArea.append(modeLabel,score,canvas,mobile);
       setIntervalSafe(tick, 1000 / 60);
-      message(`First to ${winningScore} points wins level ${level}. Use W/S, ↑/↓, or the buttons.`);
+      message(twoPlayers?`First to ${winningScore} points wins. Player 1 uses W/S; Player 2 uses ↑/↓.`:`First to ${winningScore} points wins level ${level}. Use W/S, ↑/↓, or the buttons.`);
       draw();
     }
 
@@ -1922,7 +2000,7 @@
       message(`Level ${level}: repeat the growing sequence for ${target} rounds.`);
     }
 
-    function startWordScramble({ button, message, level }) {
+    function startWordScramble({ button, message }) {
       const words = [
         ["PLANET", "A world that orbits a star"], ["GARDEN", "A place where flowers and vegetables grow"],
         ["PUZZLE", "A challenge made of pieces or clues"], ["BRIDGE", "A structure that crosses over water or a road"],
@@ -1933,7 +2011,7 @@
         ["COMPASS", "A tool that points north"], ["LIBRARY", "A place to borrow books"],
         ["JOURNEY", "A trip from one place to another"], ["MYSTERY", "Something difficult to explain or solve"]
       ];
-      const [answer, clue] = words[(Math.max(1, level) - 1 + Math.floor(Math.random() * words.length)) % words.length];
+      const [answer, clue] = words[Math.floor(Math.random() * words.length)];
       const letters = answer.split("");
       for (let i = letters.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1970,7 +2048,7 @@
         }
       });
       gameArea.append(scrambled, hint, form);
-      message(`Level ${level}: unscramble the letters.`);
+      message("Unscramble the letters using the clue.");
       input.focus();
     }
 
@@ -1986,15 +2064,20 @@
       const label = document.createElement("label");
       const difficulty = document.createElement("select");
       difficulty.setAttribute("aria-label", "Chess bot difficulty");
-      [["easy", "Easy · casual moves"], ["medium", "Medium · looks ahead"], ["hard", "Hard · deeper search"]].forEach(([value, text]) => {
+      [["easy", "Easy · casual moves"], ["medium", "Medium · looks ahead"], ["hard", "Hard · tactical search"], ["expert", "Expert · strongest search"]].forEach(([value, text]) => {
         const option = document.createElement("option");
         option.value = value;
         option.textContent = text;
         difficulty.append(option);
       });
       label.append("Bot difficulty ", difficulty);
-      controls.append(label);
-      let position, selected = -1, legal = [], gameOver = false, thinking = false;
+      const modeLabel=document.createElement("label"),mode=document.createElement("select");
+      mode.setAttribute("aria-label","Chess opponent mode");
+      [["bot","Play against bot"],["local","2 players, same device"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;mode.append(option);});
+      mode.value=localPlayerModes.chess?"local":"bot";modeLabel.append("Opponent ",mode);
+      mode.addEventListener("change",()=>{localPlayerModes.chess=mode.value==="local";restartCurrentGame();});
+      difficulty.disabled=mode.value==="local";controls.append(label,modeLabel);
+      let position, selected = -1, legal = [], gameOver = false, thinking = false, lastMove = null;
       const initialBoard = () => [
         "rnbqkbnr".split(""), "pppppppp".split(""),
         Array(8).fill(""), Array(8).fill(""), Array(8).fill(""), Array(8).fill(""),
@@ -2002,7 +2085,7 @@
       ].flat();
       const start = () => {
         position = { board: initialBoard(), turn: "w", castle: "KQkq", ep: -1 };
-        selected = -1; legal = []; gameOver = false; thinking = false;
+        selected = -1; legal = []; gameOver = false; thinking = false; lastMove = null;
         draw(); showStatus();
       };
       function clone(pos) { return { board: pos.board.slice(), turn: pos.turn, castle: pos.castle, ep: pos.ep }; }
@@ -2145,32 +2228,34 @@
       }
       function chooseBotMove(moves) {
         if (difficulty.value === "easy") return moves[Math.floor(Math.random() * moves.length)];
-        const depth = difficulty.value === "hard" ? 3 : 2;
+        const depth = difficulty.value === "expert" ? 4 : difficulty.value === "hard" ? 4 : 2;
         let best = Infinity, choices = [];
         for (const move of moves) {
           const score = search(play(position, move), depth - 1, -Infinity, Infinity, 1);
           if (score < best) { best = score; choices = [move]; }
           else if (score === best) choices.push(move);
         }
-        return choices[Math.floor(Math.random() * choices.length)];
+        return difficulty.value === "expert" ? choices[0] : choices[Math.floor(Math.random() * choices.length)];
       }
       function showStatus() {
         if (gameOver) return;
         const moves = legalMoves(position), check = inCheck(position, position.turn);
         if (!moves.length) {
           gameOver = true;
-          message(check ? (position.turn === "w" ? "Checkmate—your bot wins. Restart for another game." : "Checkmate—you win! Restart for another game.") : "Stalemate! The game is a draw. Restart to play again.");
+          message(check ? (localPlayerModes.chess ? `Checkmate! ${position.turn==="w"?"Black":"White"} wins.` : (position.turn === "w" ? "Checkmate—your bot wins. Restart for another game." : "Checkmate—you win! Restart for another game.")) : "Stalemate! The game is a draw. Restart to play again.");
           return;
         }
-        message(position.turn === "w" ? `Your move as White.${check ? " Check! Find a safe move for your king." : " Tip: develop pieces and protect your king."}` : `Bot is thinking${check ? "—your king is in check!" : "…"}`);
+        message(localPlayerModes.chess?`${position.turn==="w"?"White":"Black"} to move.${check?" Check!":""}`:position.turn === "w" ? `Your move as White.${check ? " Check! Find a safe move for your king." : " Tip: develop pieces and protect your king."}` : `Bot is thinking${check ? "—your king is in check!" : "…"}`);
       }
       function draw() {
+        const squareSize=boardElement.querySelector(".strategy-square")?.getBoundingClientRect().width||48;
         boardElement.replaceChildren();
         const destinations = new Set(legal.map(move => move.to));
         for (let i = 0; i < 64; i++) {
-          const piece = position.board[i], cell = button(piece ? pieceGlyph[piece] : "");
+          const piece = position.board[i], cell = button("");
           const row = Math.floor(i / 8), col = i % 8;
-          cell.className = `strategy-square ${(row + col) % 2 ? "dark" : "light"}${piece && isWhite(piece) ? " white-piece" : piece ? " black-piece" : ""}${i === selected ? " selected" : destinations.has(i) ? " target" : ""}`;
+          cell.className = `strategy-square ${(row + col) % 2 ? "dark" : "light"}${piece && isWhite(piece) ? " white-piece" : piece ? " black-piece" : ""}${i === selected ? " selected" : destinations.has(i) ? " target" : ""}${lastMove&&(i===lastMove.from||i===lastMove.to)?" last-move":""}`;
+          if(piece){const glyph=document.createElement("span");glyph.className="strategy-piece";glyph.textContent=pieceGlyph[piece];if(lastMove&&i===lastMove.to){const fromRow=Math.floor(lastMove.from/8),fromCol=lastMove.from%8;glyph.classList.add("moving");glyph.style.setProperty("--move-x",`${(fromCol-col)*squareSize}px`);glyph.style.setProperty("--move-y",`${(fromRow-row)*squareSize}px`);}cell.append(glyph);}
           cell.setAttribute("role", "gridcell");
           cell.setAttribute("aria-label", `${String.fromCharCode(97 + col)}${8 - row}${piece ? ` ${isWhite(piece) ? "white" : "black"} ${piece.toUpperCase()}` : " empty"}`);
           cell.disabled = gameOver || thinking;
@@ -2179,7 +2264,7 @@
         }
       }
       function selectSquare(square) {
-        if (gameOver || thinking || position.turn !== "w") return;
+        if (gameOver || thinking || (position.turn !== "w" && !localPlayerModes.chess)) return;
         const move = legal.find(item => item.from === selected && item.to === square);
         if (move) { makeMove(move); return; }
         if (position.board[square] && isWhite(position.board[square])) {
@@ -2189,14 +2274,14 @@
         draw();
       }
       function makeMove(move) {
-        position = play(position, move); selected = -1; legal = [];
+        position = play(position, move); selected = -1; legal = []; lastMove=move;
         draw(); showStatus();
-        if (position.turn === "b" && !gameOver) {
+        if (position.turn === "b" && !gameOver && !localPlayerModes.chess) {
           thinking = true; draw();
           setTimeoutSafe(() => {
             if (gameOver || activeGame !== "chess") return;
             const moves = legalMoves(position);
-            if (moves.length) position = play(position, chooseBotMove(moves));
+            if (moves.length) {const botMove=chooseBotMove(moves);position = play(position, botMove);lastMove=botMove;}
             thinking = false; draw(); showStatus();
           }, 120);
         }
@@ -2218,12 +2303,18 @@
       const label = document.createElement("label");
       const difficulty = document.createElement("select");
       difficulty.setAttribute("aria-label", "Checkers bot difficulty");
-      [["easy", "Easy · casual moves"], ["medium", "Medium · takes captures"], ["hard", "Hard · plans ahead"]].forEach(([value, text]) => {
+      [["easy", "Easy · casual moves"], ["medium", "Medium · takes captures"], ["hard", "Hard · plans ahead"], ["expert", "Expert · strongest search"]].forEach(([value, text]) => {
         const option = document.createElement("option");
         option.value = value; option.textContent = text; difficulty.append(option);
       });
-      label.append("Bot difficulty ", difficulty); controls.append(label);
-      let board, moves = [], selected = -1, gameOver = false, thinking = false;
+      label.append("Bot difficulty ", difficulty);
+      const modeLabel=document.createElement("label"),mode=document.createElement("select");
+      mode.setAttribute("aria-label","Checkers opponent mode");
+      [["bot","Play against bot"],["local","2 players, same device"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;mode.append(option);});
+      mode.value=localPlayerModes.checkers?"local":"bot";modeLabel.append("Opponent ",mode);
+      mode.addEventListener("change",()=>{localPlayerModes.checkers=mode.value==="local";restartCurrentGame();});
+      difficulty.disabled=mode.value==="local";controls.append(label,modeLabel);
+      let board, moves = [], selected = -1, gameOver = false, thinking = false, turn="w";
       function initialBoard() {
         const result = Array(64).fill("");
         for (let row = 0; row < 3; row++) for (let col = 0; col < 8; col++) if ((row + col) % 2) result[row * 8 + col] = "b";
@@ -2305,7 +2396,7 @@
         const options = movesFor(board, "b");
         if (!options.length) return null;
         if (difficulty.value === "easy") return options[Math.floor(Math.random() * options.length)];
-        const depth = difficulty.value === "hard" ? 4 : 2;
+        const depth = difficulty.value === "expert" ? 5 : difficulty.value === "hard" ? 4 : difficulty.value === "medium" ? 3 : 2;
         let best = -Infinity, choices = [];
         for (const move of options) {
           const value = search(apply(board, move), "w", depth - 1, -Infinity, Infinity);
@@ -2315,11 +2406,12 @@
         return choices[Math.floor(Math.random() * choices.length)];
       }
       function finishOrMessage() {
-        moves = movesFor(board, "w");
+        moves = movesFor(board, turn);
         if (!moves.length) {
           gameOver = true;
-          message(board.some(piece => piece.toLowerCase() === "w") ? "No legal moves—your bot wins. Restart to play again." : "You captured every opposing piece! You win.");
-        } else message(moves.some(move => move.taken.length) ? "Your move. A capture is available, so you must jump." : "Your move as Red. Reach the opposite edge to crown a king.");
+          if(localPlayerModes.checkers)message(`${turn==="w"?"Black":"Red"} wins! The other player has no legal moves.`);
+          else message(board.some(piece => piece.toLowerCase() === "w") ? "No legal moves—your bot wins. Restart to play again." : "You captured every opposing piece! You win.");
+        } else message(localPlayerModes.checkers?`${turn==="w"?"Red":"Black"} to move.${moves.some(move=>move.taken.length)?" A capture is required.":""}`:moves.some(move => move.taken.length) ? "Your move. A capture is available, so you must jump." : "Your move as Red. Reach the opposite edge to crown a king.");
       }
       function draw() {
         boardElement.replaceChildren();
@@ -2338,7 +2430,8 @@
         if (gameOver || thinking) return;
         const chosen = moves.find(move => move.from === selected && move.path[move.path.length - 1] === square);
         if (chosen) {
-          board = apply(board, chosen); selected = -1; draw();
+          board = apply(board, chosen); selected = -1; turn=turn==="w"?"b":"w";draw();
+          if(localPlayerModes.checkers){finishOrMessage();draw();return;}
           const reply = movesFor(board, "b");
           if (!reply.length) { gameOver = true; message("You win! The bot has no legal moves. Restart for a rematch."); draw(); return; }
           thinking = true; draw(); message("The bot is thinking…");
@@ -2346,15 +2439,16 @@
             if (gameOver || activeGame !== "checkers") return;
             const move = botMove();
             if (move) board = apply(board, move);
+            turn="w";
             thinking = false; draw(); finishOrMessage();
           }, 120);
           return;
         }
-        if (board[square] && board[square].toLowerCase() === "w") selected = square;
+        if (board[square] && board[square].toLowerCase() === turn) selected = square;
         else selected = -1;
         draw();
       }
-      function reset() { board = initialBoard(); moves = []; selected = -1; gameOver = false; thinking = false; draw(); finishOrMessage(); }
+      function reset() { board = initialBoard(); moves = []; selected = -1; gameOver = false; thinking = false; turn="w";draw(); finishOrMessage(); }
       difficulty.addEventListener("change", reset);
       addCleanup(() => { gameOver = true; });
       gameArea.append(controls, boardElement);
@@ -2401,7 +2495,7 @@
       makeQuestion();
     }
 
-    function startGeoExplorer({ button, message, level }) {
+    function startGeoExplorer({ button, message }) {
       const places = [
         { country: "Japan", capital: "Tokyo", continent: "Asia", landmark: "Mount Fuji" },
         { country: "Brazil", capital: "Brasília", continent: "South America", landmark: "Christ the Redeemer" },
@@ -2431,7 +2525,7 @@
           optionsBox.replaceChildren(); fact.textContent = "Press Restart to explore the world again."; next.hidden = true; return;
         }
         answered = false; next.hidden = true; fact.textContent = "";
-        const [key, makePrompt] = fields[(question + level - 1) % fields.length];
+        const [key, makePrompt] = fields[question % fields.length];
         current = places[Math.floor(Math.random() * places.length)]; field = key;
         prompt.textContent = `Question ${question + 1} of 10 · ${makePrompt(current)}`;
         const distractors = places.filter(place => place !== current).map(place => place[key]);
@@ -2460,7 +2554,7 @@
       }
       next.addEventListener("click", newQuestion);
       gameArea.append(prompt, optionsBox, fact, next);
-      message(`Level ${level}: explore the world in a 10-question challenge.`);
+      message("Explore the world in a 10-question challenge.");
       newQuestion();
     }
 
@@ -2955,6 +3049,158 @@
       function finish(){finished=true;choices.querySelectorAll("button").forEach(item=>item.disabled=true);message(correct>=Math.ceil(rounds*.7)?`Level ${level} cleared! ${correct}/${rounds} notes named correctly.`:`Time or questions complete: ${correct}/${rounds}. Reach ${Math.ceil(rounds*.7)} to clear this level.`);}
       setIntervalSafe(()=>{if(finished)return;seconds--;score.innerHTML=`Level ${level} · Correct <strong>${correct}/${asked}</strong> · Time <strong>${seconds}s</strong>`;if(seconds<=0)finish();},1000);
       gameArea.append(score,panel,canvas,choices);next();message(`Level ${level}: name ${rounds} notes in 45 seconds. Higher levels add more notes above and below the staff.`);
+    }
+
+    function startFreshArcadeGame({ name, config, addCleanup, setIntervalSafe, setTimeoutSafe, button, message }) {
+      const hud = document.createElement("div"); hud.className = "mini-hud";
+      const options = document.createElement("div"); options.className = "mini-options";
+      const panel = document.createElement("div"); panel.className = "mini-question";
+      const multiplayer = Boolean(config.multiplayer);
+      let twoPlayers = Boolean(config.multiplayer && localPlayerModes[name]), scores = [0, 0], currentPlayer = 0, finished = false;
+      function scoreLine(label, value) { return `<span>${label} <strong>${value}</strong></span>`; }
+      function addPlayerSelect() {
+        if (!multiplayer) return;
+        const label = document.createElement("label"), select = document.createElement("select");
+        select.setAttribute("aria-label", "Play mode");
+        [["solo","Solo"],["duo","2 players, same device"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;select.append(option);});
+        select.value=twoPlayers?"duo":"solo";
+        select.addEventListener("change",()=>{localPlayerModes[name]=select.value==="duo";restartCurrentGame();});
+        label.append("Mode ",select);gameArea.append(label);
+      }
+      function showScore(roundText = "") {
+        const parts = [scoreLine(twoPlayers ? "Player 1" : "Score", scores[0])];
+        if (twoPlayers) parts.push(scoreLine("Player 2", scores[1]));
+        if (roundText) parts.push(`<span>${roundText}</span>`);
+        hud.innerHTML=parts.join("");
+      }
+      function awardPoint(amount=1) { scores[currentPlayer]+=amount; if(twoPlayers)currentPlayer=1-currentPlayer; }
+      function resetScores() { scores=[0,0];currentPlayer=0;finished=false; }
+      function addHome(controls) { gameArea.append(hud,controls); }
+      addPlayerSelect();
+
+      if (config.mode === "quiz") {
+        const banks={
+          rhymetime:[["Which word rhymes with 'bright'?","light",["light","brick","branch","blue"]],["Which word rhymes with 'stone'?","phone",["phone","stove","storm","stick"]],["Which word rhymes with 'train'?","grain",["grain","tree","trail","treat"]],["Which word rhymes with 'cheer'?","near",["chair","near","charm","chase"]],["Which word rhymes with 'cloud'?","proud",["proud","climb","clock","clear"]],["Which word rhymes with 'glow'?","snow",["snow","glue","glass","globe"]],["Which word rhymes with 'spark'?","shark",["shark","spoke","speak","spoon"]],["Which word rhymes with 'drum'?","thumb",["thumb","dream","drip","drown"]]],
+          fractionforge:[["Which fraction is larger?","3/4",["2/3","3/4","1/2","5/8"]],["Reduce 6/8 to simplest form.","3/4",["2/3","3/4","1/4","4/5"]],["What is 1/4 + 2/4?","3/4",["3/8","3/4","2/8","1/2"]],["Which fraction equals 0.5?","1/2",["1/4","1/3","1/2","2/5"]],["What is 2/3 of 12?","8",["6","7","8","9"]],["Which is smallest?","1/5",["1/2","1/3","1/4","1/5"]],["What is 3/5 + 1/5?","4/5",["4/10","4/5","3/10","1"]],["Reduce 10/15.","2/3",["1/3","2/3","3/5","5/6"]]],
+          decimaldash:[["0.4 + 0.35 = ?","0.75",["0.39","0.65","0.75","4.35"]],["3.6 × 2 = ?","7.2",["5.6","6.2","7.2","72"]],["8.4 ÷ 2 = ?","4.2",["2.4","4.2","4.8","6.2"]],["Which is greatest?","0.8",["0.08","0.18","0.8","0.78"]],["1.25 + 0.5 = ?","1.75",["1.3","1.65","1.75","1.8"]],["10 − 3.75 = ?","6.25",["6.15","6.25","7.25","7.75"]],["0.09 × 10 = ?","0.9",["0.009","0.09","0.9","9"]],["2.4 + 2.04 = ?","4.44",["4.08","4.4","4.44","4.404"]]],
+          mythexplorer:[["In many Greek stories, who carries messages for the gods?","Hermes",["Ares","Hermes","Hades","Atlas"]],["Which legendary creature has a lion's body and eagle's head?","Griffin",["Phoenix","Griffin","Centaur","Sphinx"]],["Which object is often linked with King Arthur?","Excalibur",["Aegis","Excalibur","Mjölnir","Trident"]],["In Norse tales, what is the world tree called?","Yggdrasil",["Bifröst","Yggdrasil","Valhalla","Midgard"]],["Which creature is said to rise again from ashes?","Phoenix",["Hydra","Phoenix","Cyclops","Pegasus"]],["What is a story that explains a culture's origins often called?","Creation myth",["Fable","Creation myth","Riddle","Chronicle"]],["Which Greek figure is known for flying too close to the Sun?","Icarus",["Daedalus","Icarus","Orpheus","Perseus"]],["Which creature is traditionally part human and part horse?","Centaur",["Griffin","Centaur","Sphinx","Minotaur"]]],
+          anatomydash:[["Which organ moves blood around the body?","Heart",["Lung","Heart","Kidney","Stomach"]],["Where does most digestion and nutrient absorption happen?","Small intestine",["Liver","Small intestine","Lung","Bladder"]],["Which part of the body protects the brain?","Skull",["Rib cage","Skull","Spine","Shoulder"]],["What connects muscle to bone?","Tendon",["Tendon","Ligament","Cartilage","Nerve"]],["Which organs take oxygen into the blood?","Lungs",["Lungs","Kidneys","Brain","Skin"]],["What carries messages between the brain and body?","Nerves",["Veins","Nerves","Tendons","Ribs"]],["Which bone protects the heart and lungs?","Rib cage",["Pelvis","Rib cage","Femur","Skull"]],["Which organ filters waste from the blood to make urine?","Kidneys",["Pancreas","Kidneys","Spleen","Liver"]]]
+        };
+        let questions = banks[name] || banks.rhymetime, index=0, correct=0, answered=false;
+        const rounds=8;
+        function nextQuestion() {
+          if(index>=rounds){finished=true;options.replaceChildren();message(`${twoPlayers?`Final score: ${scores[0]}–${scores[1]}. `:""}${correct>=Math.ceil(rounds*.6)?"Challenge complete!":"Round over—try again to beat your score."}`);return;}
+          const item=questions[(Math.floor(Math.random()*questions.length)+index)%questions.length];answered=false;panel.textContent=`${twoPlayers?`Player ${currentPlayer+1} · `:""}${item[0]}`;showScore(`Question ${index+1}/${rounds} · ${correct} correct`);
+          options.replaceChildren();item[2].slice().sort(()=>Math.random()-.5).forEach(choice=>{const pick=button(choice);pick.addEventListener("click",()=>{if(answered||finished)return;answered=true;if(choice===item[1]){correct++;const scorer=currentPlayer+1;awardPoint();message(`Correct! ${twoPlayers?`Player ${scorer} scores. `:""}Well done.`);}else{if(twoPlayers)currentPlayer=1-currentPlayer;message(`The answer is ${item[1]}. ${twoPlayers?`Player ${currentPlayer+1}'s turn.`:""}Try the next one.`);}index++;options.querySelectorAll("button").forEach(el=>el.disabled=true);setTimeoutSafe(nextQuestion,650);});options.append(pick);});
+        }
+        addHome(options);gameArea.append(panel);nextQuestion();message(twoPlayers?"Players take turns; each correct answer earns a point.":"Answer eight questions and build your score.");
+        return;
+      }
+
+      if (config.mode === "sequence") {
+        const names=name==="potionfactory"?["Moonflower","Emberroot","Starfruit","Frostmint"]:["Coral","Lime","Sky","Violet"],colors=["#f58bbd","#c6f36b","#70c7ff","#a78bfa"],sequence=[],pads=document.createElement("div");pads.className="mini-options";
+        const start=button("Start pattern","primary-btn");let step=0,accepting=false,round=0;
+        const roundGoal=name==="potionfactory"?5:name==="soundsafari"?6:7;
+        function tone(index){if(name!=="soundsafari")return;const AudioContext=window.AudioContext||window.webkitAudioContext;if(!AudioContext)return;const audio=new AudioContext(),osc=audio.createOscillator(),gain=audio.createGain();osc.frequency.value=[261.6,329.6,392,523.2][index];gain.gain.setValueAtTime(.0001,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.1,audio.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.22);osc.connect(gain);gain.connect(audio.destination);osc.start();osc.stop(audio.currentTime+.24);osc.onended=()=>audio.close();}
+        function flash(index){const pad=pads.children[index];pad.classList.add("primary-btn");tone(index);setTimeoutSafe(()=>pad.classList.remove("primary-btn"),250);}
+        function playSequence(){accepting=false;sequence.forEach((value,i)=>setTimeoutSafe(()=>flash(value),450+i*530));setTimeoutSafe(()=>{accepting=true;step=0;message(`${names[sequence[sequence.length-1]]} pattern: repeat all ${sequence.length} steps.`);},450+sequence.length*530);}
+        function addStep(){if(finished)return;round++;sequence.push(Math.floor(Math.random()*4));if(round>roundGoal){finished=true;accepting=false;message(`Pattern mastered! ${twoPlayers?`Scores ${scores[0]}–${scores[1]}. `:""}Restart for a fresh pattern.`);return;}message(`Round ${round}/${roundGoal} · Watch the pattern.`);playSequence();}
+        names.forEach((item,index)=>{const pad=button(item);pad.style.borderColor=colors[index];pad.addEventListener("click",()=>{if(!accepting||finished)return;flash(index);if(sequence[step]!==index){accepting=false;if(twoPlayers){currentPlayer=1-currentPlayer;sequence.length=0;message(`Wrong! Player ${currentPlayer+1} takes over the pattern.`);setTimeoutSafe(()=>{if(!finished)addStep();},700);}else{finished=true;message(`Pattern broken at ${sequence.length} steps. Try again!`);}return;}step++;if(step===sequence.length){accepting=false;awardPoint();showScore(`Pattern ${round}/${roundGoal}`);message(`Nice memory! ${twoPlayers?`Player ${currentPlayer+1}'s round. `:""}Watch the next pattern.`);setTimeoutSafe(addStep,650);}});pads.append(pad);});
+        start.addEventListener("click",()=>{if(sequence.length||finished)return;start.disabled=true;addStep();});addHome(pads);gameArea.append(start);showScore();message(config.description);return;
+      }
+
+      if (config.mode === "timing") {
+        const canvas=document.createElement("canvas");canvas.className="mini-game-canvas";canvas.width=700;canvas.height=220;const ctx=canvas.getContext("2d");
+        const shoot=button(name==="neonhoops"?"Shoot!":"Tap on the beat","primary-btn");let phase=0,points=0,round=0,speed=1.5,lastTime=0,frameId,rounds=10,locked=false;
+        function hit(){if(locked||finished)return;locked=true;const distance=Math.abs(phase-.5);const accuracy=Math.max(0,Math.round((1-distance*2)*100));if(accuracy>=78){awardPoint();points++;message(`Swish! ${accuracy}% timing. ${twoPlayers?`Player ${currentPlayer+1}'s turn. `:""}Keep the rhythm.`);}else message(`${accuracy}% timing—aim for the glowing sweet spot.`);round++;showScore(`Shot ${round}/${rounds}`);if(round>=rounds){finished=true;message(twoPlayers?`Match complete: Player 1 ${scores[0]} · Player 2 ${scores[1]}.`:`Session complete: ${points} perfect hits.`);}else{locked=false;speed+=.08;}}
+        function frame(time){if(finished)return;const dt=lastTime?Math.min((time-lastTime)/1000,.05):0;lastTime=time;phase=(phase+dt*speed)%1;ctx.clearRect(0,0,700,220);const bg=ctx.createLinearGradient(0,0,0,220);bg.addColorStop(0,"#15152c");bg.addColorStop(1,"#302048");ctx.fillStyle=bg;ctx.fillRect(0,0,700,220);ctx.fillStyle="#363b50";ctx.fillRect(70,95,560,26);ctx.fillStyle="#c6f36b";ctx.fillRect(300,85,100,46);ctx.fillStyle="#f58bbd";ctx.beginPath();ctx.arc(70+phase*560,108,18,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font="18px system-ui";ctx.textAlign="center";ctx.fillText(name==="neonhoops"?"TIME YOUR SHOT":"LAND ON THE BEAT",350,50);frameId=requestAnimationFrame(frame);}
+        shoot.addEventListener("click",hit);canvas.addEventListener("pointerdown",hit);gameArea.append(hud,canvas,shoot);showScore(`Shot 0/${rounds}`);message(config.description);frameId=requestAnimationFrame(frame);addCleanup(()=>cancelAnimationFrame(frameId));return;
+      }
+
+      if (config.mode === "quick") {
+        const grid=document.createElement("div");grid.className="mini-grid";grid.style.setProperty("--grid-size","4");const targetLabel=document.createElement("p");targetLabel.className="mini-question";const cells=[];
+        let target=0,round=0,hits=0,deadline=0,started=false,rounds=15,timerId,wantedColor="";
+        for(let i=0;i<16;i++){const tile=button("","mini-tile");tile.addEventListener("click",()=>{if(!started||finished)return;if(i===target){hits++;awardPoint();message(`Great catch! ${twoPlayers?`Player ${currentPlayer+1} up. `:""}Find the next target.`);nextTarget();}else message("Wrong tile—keep your eyes on the target!");});cells.push(tile);grid.append(tile);}
+        function nextTarget(){target=Math.floor(Math.random()*16);const colorNames=["pink","blue","green","purple"],palette=["#f58bbd","#70c7ff","#c6f36b","#a78bfa"],wantedIndex=Math.floor(Math.random()*4);wantedColor=colorNames[wantedIndex];cells.forEach((tile,i)=>{tile.textContent=name==="colorclash"?"●":i===target?(name==="gardenguardians"?"🐛":"✦"):"";if(name==="colorclash"){const colorIndex=i===target?wantedIndex:(wantedIndex+1+Math.floor(Math.random()*3))%4;tile.style.background=palette[colorIndex];}else tile.style.background=i===target?"#38405a":"#202638";});targetLabel.textContent=name==="colorclash"?`Tap the ${wantedColor} dot!`:name==="pixelpounce"?"Tag the blinking creature!":name==="gardenguardians"?"Tap the garden pest!":"Tap the glowing target!";round++;showScore(`Target ${round}/${rounds} · Hits ${hits}`);if(round>=rounds){finished=true;clearInterval(timerId);message(twoPlayers?`Match over: ${scores[0]}–${scores[1]}.`:`Round over! You tagged ${hits} targets.`);}}
+        const start=button("Start challenge","primary-btn");start.addEventListener("click",()=>{if(started)return;started=true;start.disabled=true;deadline=Date.now()+30000;nextTarget();timerId=setIntervalSafe(()=>{const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));showScore(`Target ${Math.min(round,rounds)}/${rounds} · Hits ${hits} · ${remaining}s`);if(!remaining){finished=true;clearInterval(timerId);message(`Time! You tagged ${hits} targets${twoPlayers?` · Player 2 tagged ${scores[1]}`:""}.`);}},250);});
+        gameArea.append(hud,targetLabel,grid,start);showScore("30 seconds");message(config.description);return;
+      }
+
+      if (config.mode === "catch" || config.mode === "dodge") {
+        const canvas=document.createElement("canvas");canvas.className="mini-game-canvas";canvas.width=680;canvas.height=400;canvas.setAttribute("aria-label",`${config.title}. Move with arrows; player two uses A and D.`);const ctx=canvas.getContext("2d"),keys=new Set(),controls=document.createElement("div");controls.className="touch-controls";
+        let players=[{x:270,score:0,color:"#70e5ff"},{x:410,score:0,color:"#f58bbd"}],objects=[],elapsed=0,spawn=0,lastTime=0,frameId,lives=3,roundTime=35;
+        function onKeyDown(e){if(noteModal.classList.contains("open"))return;if(["ArrowLeft","ArrowRight","KeyA","KeyD"].includes(e.code)){e.preventDefault();keys.add(e.code);}}
+        function onKeyUp(e){keys.delete(e.code);}document.addEventListener("keydown",onKeyDown);document.addEventListener("keyup",onKeyUp);addCleanup(()=>{document.removeEventListener("keydown",onKeyDown);document.removeEventListener("keyup",onKeyUp);});
+        function hold(label,key){const b=button(label);b.addEventListener("pointerdown",e=>{e.preventDefault();keys.add(key);});["pointerup","pointerleave","pointercancel"].forEach(type=>b.addEventListener(type,()=>keys.delete(key)));controls.append(b);}
+        hold("◀ P1","ArrowLeft");hold("P1 ▶","ArrowRight");if(multiplayer){hold("◀ P2","KeyA");hold("P2 ▶","KeyD");}
+        function frame(time){if(finished)return;const dt=lastTime?Math.min((time-lastTime)/1000,.04):0;lastTime=time;elapsed+=dt;spawn+=dt;players[0].x=Math.max(30,Math.min(650,players[0].x+((keys.has("ArrowRight")?1:0)-(keys.has("ArrowLeft")?1:0))*300*dt));if(twoPlayers)players[1].x=Math.max(30,Math.min(650,players[1].x+((keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0))*300*dt));
+          if(spawn>.52){spawn=0;          objects.push({x:20+Math.random()*640,y:-20,r:10+Math.random()*8,bad:Math.random()<.25,speed:110+Math.random()*35,type:config.mode==="catch"?["☄️","✦","🍒","🪨"][Math.floor(Math.random()*4)]:"meteor"});}
+          objects.forEach(item=>{item.y+=item.speed*dt;players.forEach((player,index)=>{if(item.hit)return;if(Math.hypot(player.x-item.x,365-item.y)<26){item.hit=true;if(config.mode==="catch"){if(item.bad){lives--;message("Oops—watch for the dangerous debris!");}else{player.score++;scores[index]++;message(`${twoPlayers?`Player ${index+1}: `:""}Nice catch!`);}}else if(item.bad){message("You dodged the meteor!");}else{player.score++;scores[index]++;}}});});
+          objects=objects.filter(item=>!item.hit&&item.y<420);ctx.clearRect(0,0,680,400);const bg=ctx.createLinearGradient(0,0,0,400);bg.addColorStop(0,"#111833");bg.addColorStop(1,name==="reefrescue"?"#174957":"#32264c");ctx.fillStyle=bg;ctx.fillRect(0,0,680,400);for(let i=0;i<7;i++){ctx.strokeStyle="rgba(255,255,255,.08)";ctx.beginPath();ctx.moveTo(i*105+(elapsed*20%100),0);ctx.lineTo(i*105-(elapsed*30%80),400);ctx.stroke();}
+          objects.forEach(item=>{ctx.font="24px system-ui";ctx.textAlign="center";ctx.fillText(config.mode==="dodge"?"☄️":item.type,item.x,item.y);});players.slice(0,twoPlayers?2:1).forEach((player,index)=>{ctx.fillStyle=player.color;ctx.beginPath();ctx.moveTo(player.x,330);ctx.lineTo(player.x-24,375);ctx.lineTo(player.x+24,375);ctx.closePath();ctx.fill();ctx.font="12px system-ui";ctx.fillText(twoPlayers?`P${index+1} ${player.score}`:"YOU",player.x,394);});
+          showScore(config.mode==="catch"?`Time ${Math.max(0,Math.ceil(roundTime-elapsed))}s · Misses ${lives}`:`Distance ${Math.floor(elapsed*12)}m · Best ${Math.max(players[0].score,players[1].score)}`);if((config.mode==="catch"&&(elapsed>=roundTime||lives<=0))||(config.mode==="dodge"&&elapsed>=45)){finished=true;const result=twoPlayers?`Player 1 ${players[0].score} · Player 2 ${players[1].score}. ${players[0].score===players[1].score?"It's a tie!":players[0].score>players[1].score?"Player 1 wins!":"Player 2 wins!"}`:`Run over! Score ${players[0].score}.`;message(result);return;}frameId=requestAnimationFrame(frame);}
+        gameArea.append(hud,canvas,controls);showScore("Get ready!");message(twoPlayers?"Two players share the controls: arrows for P1, A/D for P2.":"Use the arrow keys or touch buttons to move.");frameId=requestAnimationFrame(frame);addCleanup(()=>cancelAnimationFrame(frameId));return;
+      }
+
+      if (config.mode === "aim") {
+        const canvas=document.createElement("canvas");canvas.className="mini-game-canvas";canvas.width=680;canvas.height=340;const ctx=canvas.getContext("2d");
+        const angle=document.createElement("input"),power=document.createElement("input");angle.type="range";angle.min="10";angle.max="80";angle.value="45";angle.setAttribute("aria-label","Launch angle");power.type="range";power.min="30";power.max="100";power.value="70";power.setAttribute("aria-label","Launch power");
+        const aimControls=document.createElement("div");aimControls.className="inline-controls";aimControls.append("Angle ",angle,"Power ",power);
+        const launch=button("Launch","primary-btn");let hits=0,tries=0,targetX=500,targetY=180;
+        function draw(trajectory){ctx.clearRect(0,0,680,340);ctx.fillStyle="#10152e";ctx.fillRect(0,0,680,340);ctx.fillStyle="#c6f36b";ctx.fillRect(0,292,680,48);ctx.fillStyle="#273b56";ctx.fillRect(targetX-28,targetY,56,35);ctx.strokeStyle="#f58bbd";ctx.lineWidth=5;ctx.beginPath();ctx.arc(targetX,targetY-10,32,Math.PI,0);ctx.stroke();ctx.fillStyle="#70e5ff";ctx.beginPath();ctx.arc(80,276,12,0,Math.PI*2);ctx.fill();if(trajectory){ctx.strokeStyle="#fff";ctx.setLineDash([5,6]);ctx.beginPath();for(let t=0;t<45;t++){const rad=Number(angle.value)*Math.PI/180,v=Number(power.value)*.12,x=80+Math.cos(rad)*v*t*4,y=276-Math.sin(rad)*v*t*4+.24*t*t;if(t===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);}}
+        function fire(){if(finished)return;tries++;const rad=Number(angle.value)*Math.PI/180,v=Number(power.value)*.12,flight=2*Math.sin(rad)*v/.48,x=80+Math.cos(rad)*v*flight*4,y=276-Math.sin(rad)*v*flight*4+.24*flight*flight;const hit=Math.hypot(x-targetX,y-targetY)<75;if(hit){hits++;scores[currentPlayer]++;if(twoPlayers)currentPlayer=1-currentPlayer;message(`Bullseye! ${twoPlayers?`Player ${currentPlayer+1} shoots next. `:""}Adjust your shot for the moving target.`);}else message("Miss! Try a little more angle or power.");targetX=340+Math.random()*280;targetY=120+Math.random()*115;showScore(`Hits ${hits} · Shots ${tries}/8`);draw(true);if(tries>=8){finished=true;message(twoPlayers?`Match score: Player 1 ${scores[0]} · Player 2 ${scores[1]}.`:`Target practice complete: ${hits}/8 hits.`);}}
+        angle.addEventListener("input",()=>draw(true));power.addEventListener("input",()=>draw(true));launch.addEventListener("click",fire);gameArea.append(hud,canvas,aimControls,launch);showScore("Hits 0 · Shots 0/8");message("Tune your launch angle and power, then try to hit the moving target.");draw(true);return;
+      }
+
+      if (config.mode === "path") {
+        const size=6,grid=document.createElement("div");grid.className="mini-grid";grid.style.setProperty("--grid-size",String(size));const hudInfo=document.createElement("div");hudInfo.className="mini-question";
+        const start={x:0,y:0},goal={x:5,y:5};let player={...start},moves=0,obstacles=[],program=[];
+        for(let i=0;i<8;i++){const x=1+Math.floor(Math.random()*4),y=1+Math.floor(Math.random()*4);if(!(y===0||x===5)&&!(x===goal.x&&y===goal.y))obstacles.push(`${x},${y}`);}
+        function draw(){grid.replaceChildren();for(let y=0;y<size;y++)for(let x=0;x<size;x++){const cell=button(x===player.x&&y===player.y?(name==="roborescue"?"🤖":"🧭"):x===goal.x&&y===goal.y?(name==="roborescue"?"🛟":"💎"):obstacles.includes(`${x},${y}`)?"🌊":"", "mini-tile");cell.setAttribute("aria-label",`Row ${y+1}, column ${x+1}`);cell.addEventListener("click",()=>moveTo(x,y));grid.append(cell);}hudInfo.textContent=`Moves ${moves} · Program ${program.length?program.join(" → "):"tap a neighboring tile"}`;}
+        function moveTo(x,y){if(finished||Math.abs(x-player.x)+Math.abs(y-player.y)!==1||obstacles.includes(`${x},${y}`))return;player={x,y};moves++;draw();if(x===goal.x&&y===goal.y){finished=true;message(`Rescue complete in ${moves} moves!`);}}
+        function keydown(e){const delta={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(delta){e.preventDefault();moveTo(player.x+delta[0],player.y+delta[1]);}}
+        document.addEventListener("keydown",keydown);addCleanup(()=>document.removeEventListener("keydown",keydown));
+        if(name==="roborescue"){const dirs=[["↑",0,-1],["↓",0,1],["←",-1,0],["→",1,0]];dirs.forEach(([label,dx,dy])=>{const b=button(label);b.addEventListener("click",()=>{if(program.length<12)program.push([dx,dy]);hudInfo.textContent=`Program: ${program.length} move${program.length===1?"":"s"}`;});options.append(b);});const run=button("Run program","primary-btn");run.addEventListener("click",()=>{if(finished)return;let step=0;function next(){if(step>=program.length)return;const [dx,dy]=program[step++];moveTo(player.x+dx,player.y+dy);if(!finished)setTimeoutSafe(next,300);}next();});options.append(run);}
+        gameArea.append(hud,grid,hudInfo,options);showScore("Route the explorer to the treasure");message(name==="roborescue"?"Queue up to 12 moves, then run your program.":"Tap a neighboring tile or use the arrow keys. Avoid the tide pools.");draw();return;
+      }
+
+      if (config.mode === "circuit") {
+        const size=5,grid=document.createElement("div");grid.className="mini-grid";grid.style.setProperty("--grid-size",String(size));const tiles=Array.from({length:size*size},(_,i)=>({open:i>=10&&i<=14,rotation:i>=10&&i<=14?Math.floor(Math.random()*4):0}));if(tiles.slice(10,15).every(tile=>tile.rotation%2===1))tiles[12].rotation=0;let rotations=0;
+        function connected(){
+          const seen=new Set([12]),queue=[12];
+          while(queue.length){const i=queue.shift(),tile=tiles[i];if(!tile.open)continue;for(const [dx,dy,bit,other] of [[0,-1,0,2],[1,0,1,3],[0,1,2,0],[-1,0,3,1]]){const row=Math.floor(i/size),col=i%size,nx=col+dx,ny=row+dy;if(nx<0||nx>=size||ny<0||ny>=size)continue;const next=ny*size+nx;if(!tiles[next].open||seen.has(next))continue;const ports=tile.rotation%2===0?[0,2]:[1,3],nextPorts=tiles[next].rotation%2===0?[0,2]:[1,3];if(ports.includes(bit)&&nextPorts.includes(other)){seen.add(next);queue.push(next);}}}
+          return seen.has(10)&&seen.has(14);
+        }
+        function draw(){grid.replaceChildren();tiles.forEach((tile,i)=>{const b=button(tile.open?"│":"","mini-tile");b.disabled=!tile.open||finished;b.style.transform=`rotate(${tile.rotation*90}deg)`;b.style.background=tile.open?"#343950":"#171c29";b.setAttribute("aria-label",`Circuit tile ${i+1}, rotation ${tile.rotation}`);b.addEventListener("click",()=>{tile.rotation=(tile.rotation+1)%4;rotations++;if(connected()){finished=true;message(`Circuit powered! ${rotations} rotations to link the beacon.`);}draw();});grid.append(b);});showScore(`Rotations ${rotations} · Source ◀ · Beacon ▶`);}
+        gameArea.append(hud,grid);draw();message("Rotate the five circuit segments until energy flows from the left source to the right beacon.");return;
+      }
+
+      if (config.mode === "code") {
+        const code=Array.from({length:4},()=>Math.floor(Math.random()*6)),form=document.createElement("form"),input=document.createElement("input"),submit=button("Check code","primary-btn"),history=document.createElement("div");history.className="mini-options";input.className="guess-input";input.maxLength=4;input.placeholder=name==="logiclock"?"4 digits (0–5)":"4 symbols (0–5)";input.setAttribute("aria-label","Enter four code digits");form.className="guess-form";submit.type="submit";form.append(input,submit);let tries=0;
+        form.addEventListener("submit",e=>{e.preventDefault();if(finished)return;const guess=input.value.trim();if(!/^[0-5]{4}$/.test(guess)){message("Enter exactly four digits from 0 to 5.");return;}const digits=[...guess].map(Number),remaining=Array(6).fill(0);let exact=0;code.forEach((digit,i)=>{if(digits[i]===digit)exact++;else remaining[digit]++;});let misplaced=0;digits.forEach((digit,i)=>{if(digit!==code[i]&&remaining[digit]>0){misplaced++;remaining[digit]--;}});tries++;const line=document.createElement("div");line.className="scoreline";line.textContent=`${guess} → ${exact} exact · ${misplaced} right digit, wrong place`;history.prepend(line);input.value="";if(exact===4){finished=true;message(`Lock cracked in ${tries} guesses! Code: ${code.join("")}.`);}else if(tries>=8){finished=true;message(`The lock stayed shut. The code was ${code.join("")}. Restart to try again.`);}else message("Use the exact and misplaced counts to narrow your next guess.");});
+        gameArea.append(hud,form,history);showScore("8 tries");message("Crack the four-digit code. Repeated digits are allowed; feedback tells you exact and misplaced matches.");return;
+      }
+
+      if (config.mode === "word") {
+        const letters=["A","E","L","N","P","T","R","S"],input=document.createElement("input"),submit=button("Add word","primary-btn"),form=document.createElement("form"),used=document.createElement("div");input.className="guess-input";input.maxLength=8;input.placeholder="Type a word";input.setAttribute("aria-label","Enter a word using the shown letters");form.className="guess-form";submit.type="submit";form.append(input,submit);const letterLine=document.createElement("div");letterLine.className="mini-question";letterLine.textContent=letters.join(" · ");let found=new Set(),seconds=50;
+        const accepted=new Set(["ant","apt","are","art","ate","ear","eat","era","lap","pan","pant","par","pat","pea","pen","pet","ran","rap","rat","rep","sap","sat","sea","set","spa","tap","tar","tea","ten","net","plan","plant","plane","panel","plate","pearl","learn","leap","lean","late","rate","rent","near","earn","east","tale","tales","stare","tears","rates","strap","traps","alert","alter","later","least","stale","steal","pale","sale","seat","real","star","part","trap","slant","planet"]);
+        const clock=setIntervalSafe(()=>{if(finished)return;seconds--;showScore(`Words ${found.size} · ${seconds}s`);if(seconds<=0){finished=true;message(`Time! You found ${found.size} words. ${found.size>=8?"Great vocabulary sprint!":"Try again to find eight."}`);}},1000);
+        form.addEventListener("submit",e=>{e.preventDefault();if(finished)return;const word=input.value.trim().toLowerCase();input.value="";const available=letters.slice();let possible=word.length>=3;for(const letter of word){const index=available.indexOf(letter.toUpperCase());if(index<0){possible=false;break;}available.splice(index,1);}if(!possible){message("Use the shown letters only, with each letter no more than once.");return;}if(!accepted.has(word)){message("That word isn't in this mini game's word list. Try another.");return;}if(found.has(word)){message("Already found! Make a different word.");return;}found.add(word);const tag=document.createElement("span");tag.className="secondary-btn";tag.textContent=word;used.append(tag);if(twoPlayers)awardPoint();showScore(`Words ${found.size} · ${seconds}s`);message(`Nice word! ${twoPlayers?`Player ${currentPlayer+1}'s turn. `:""}Keep weaving.`);});
+        gameArea.append(hud,letterLine,form,used);showScore(`Words 0 · ${seconds}s`);message("Make as many real words as you can. Three letters minimum; each letter may be used once.");return;
+      }
+
+      if (config.mode === "order") {
+        const correct=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"],planets=correct.slice().sort(()=>Math.random()-.5),list=document.createElement("div");list.className="mini-options";
+        function draw(){list.replaceChildren();planets.forEach((planet,i)=>{const row=document.createElement("div");row.className="inline-controls";row.append(document.createTextNode(`${i+1}. ${planet}`));for(const delta of [-1,1]){const move=button(delta<0?"↑":"↓");move.disabled=finished||(i+delta<0||i+delta>=planets.length);move.addEventListener("click",()=>{[planets[i],planets[i+delta]]=[planets[i+delta],planets[i]];draw();});row.append(move);}list.append(row);});}
+        const check=button("Check orbit order","primary-btn");check.addEventListener("click",()=>{if(finished)return;const placed=planets.filter((planet,i)=>planet===correct[i]).length;showScore(`${placed}/8 in the right orbit`);if(placed===8){finished=true;message("Perfect orbit! Every planet is in order.");}else message(`${placed} are in the right orbit. Keep rearranging—planets are ordered by distance from the Sun.`);});
+        gameArea.append(hud,list,check);draw();message("Use the arrows to arrange the planets from closest to farthest from the Sun.");return;
+      }
+
+      if (config.mode === "grid") {
+        const size=6,target={x:Math.floor(Math.random()*6),y:Math.floor(Math.random()*6)},grid=document.createElement("div");grid.className="mini-grid";grid.style.setProperty("--grid-size","6");let digs=0;
+        function draw(){grid.replaceChildren();for(let y=0;y<size;y++)for(let x=0;x<size;x++){const cell=button("","mini-tile");cell.style.background="#5b4b37";cell.setAttribute("aria-label",`Dig square ${x+1}, ${y+1}`);cell.addEventListener("click",()=>{if(finished||cell.disabled)return;digs++;cell.disabled=true;const distance=Math.abs(target.x-x)+Math.abs(target.y-y);if(distance===0){cell.textContent="🦴";finished=true;message(`Fossil found in ${digs} digs!`);}else{cell.textContent=distance<2?"🔥":distance<4?"🌡️":"❄️";message(distance<2?"Very warm—you're right beside it!":distance<4?"Warm! Search closer.":"Cold. Try a different area.");}showScore(`Digs ${digs}/10 · ${distance===0?"Found":"Clue "+(distance<2?"very warm":distance<4?"warm":"cold")}`);});grid.append(cell);}}
+        gameArea.append(hud,grid);draw();showScore("Digs 0/10");message("Tap a square to dig; the clue gets warmer as you approach the hidden fossil. Ten digs maximum.");return;
+      }
     }
 
     document.querySelectorAll(".game-card").forEach(card => card.addEventListener("click", () => openGame(card.dataset.game)));
