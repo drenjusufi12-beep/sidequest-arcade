@@ -71,14 +71,30 @@
     h1 { margin: 9px 0 8px; font-size: clamp(36px, 6vw, 58px); line-height: 1; letter-spacing: -.065em; }
     .hero p { max-width: 520px; margin: 0; color: var(--muted); line-height: 1.65; }
     .game-count { flex: 0 0 auto; padding: 10px 13px; border: 1px solid var(--line); border-radius: 14px; color: #d7dced; font-size: 13px; background: rgba(255,255,255,.035); }
-    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 17px; }
     .toolbar h2 { margin: 0; font-size: 18px; letter-spacing: -.025em; }
+    .library-tools { display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 9px; }
     .search-wrap { position: relative; width: min(260px, 48%); }
     .search-wrap::before { content: "⌕"; position: absolute; top: 7px; left: 13px; color: var(--muted); font-size: 23px; }
     #search {
       width: 100%; padding: 11px 14px 11px 39px; color: var(--text);
       border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.045);
     }
+    .library-filter { min-height: 42px; padding: 9px 12px; color: var(--text); border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+    .surprise-btn { min-height: 42px; padding: 9px 13px; color: #172019; border: 0; border-radius: 12px; background: var(--lime); cursor: pointer; font-weight: 800; transition: transform .16s ease, filter .16s ease; }
+    .surprise-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+    .surprise-btn:disabled { cursor: not-allowed; opacity: .5; }
+    .library-status { min-height: 0; margin: -5px 0 12px; color: var(--muted); font-size: 12px; }
+    .library-status:empty { display: none; }
+    .recent-section { margin: 0 0 22px; }
+    .recent-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .recent-heading h2 { margin: 0; font-size: 15px; }
+    .recent-clear { padding: 5px 8px; color: var(--muted); border: 0; border-radius: 8px; background: transparent; cursor: pointer; font-size: 12px; }
+    .recent-clear:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .recent-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .recent-game { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; color: var(--text); border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.045); cursor: pointer; font-size: 13px; font-weight: 700; }
+    .recent-game:hover { border-color: rgba(198,243,107,.5); background: rgba(198,243,107,.08); }
+    .favorite-btn[aria-pressed="true"] { color: #211b0d; background: #f5d477; }
     .game-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
     .game-card {
       min-height: 174px; padding: 18px; display: flex; flex-direction: column; align-items: start;
@@ -242,8 +258,11 @@
       main { padding-top: 31px; }
       .hero { align-items: start; flex-direction: column; }
       .game-count { align-self: start; }
-      .toolbar { align-items: start; flex-direction: column; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .library-tools { justify-content: stretch; }
       .search-wrap { width: 100%; }
+      .library-filter { flex: 1; }
+      .surprise-btn { flex: 1; }
       .game-grid { gap: 10px; }
       .game-card { min-height: 155px; padding: 14px; }
       .snake-board { grid-template-columns: repeat(17, min(4.4vw, 18px)); }
@@ -284,8 +303,17 @@
         </div>
         <div class="toolbar">
           <h2>Choose your game</h2>
-          <label class="search-wrap"><span class="sr-only">Search games</span><input id="search" type="search" placeholder="Find a game..." autocomplete="off"></label>
+          <div class="library-tools">
+            <label class="search-wrap"><span class="sr-only">Search games</span><input id="search" type="search" placeholder="Find a game..." autocomplete="off"></label>
+            <label><span class="sr-only">Filter games</span><select class="library-filter" id="gameFilter" aria-label="Filter games"><option value="all">All games</option><option value="favorites">★ Favorites</option></select></label>
+            <button class="surprise-btn" id="surpriseGame" type="button">✦ Surprise me</button>
+          </div>
         </div>
+        <p class="library-status" id="libraryStatus" aria-live="polite"></p>
+        <section class="recent-section" id="recentSection" aria-labelledby="recentHeading" hidden>
+          <div class="recent-heading"><h2 id="recentHeading">Pick up where you left off</h2><button class="recent-clear" id="clearRecent" type="button">Clear recent</button></div>
+          <div class="recent-list" id="recentGames"></div>
+        </section>
         <div class="game-grid" id="gameGrid">
           <button class="game-card" data-game="snake">
             <span class="game-icon tone-lime" aria-hidden="true">🐍</span><span class="card-title">Snake</span><span class="card-desc">Eat, grow, and don't run into yourself.</span>
@@ -407,7 +435,7 @@
       <section class="game-screen" id="gameScreen" aria-live="polite">
         <button class="back-btn" id="backHome" type="button">← &nbsp;All games</button>
         <div class="play-panel">
-          <div class="play-heading"><div><h2 id="gameTitle"></h2><p id="gameDescription"></p></div><button class="secondary-btn" id="restartGame" type="button">↻ &nbsp;Restart</button></div>
+          <div class="play-heading"><div><h2 id="gameTitle"></h2><p id="gameDescription"></p></div><div class="inline-controls"><button class="secondary-btn favorite-btn" id="favoriteCurrent" type="button" aria-pressed="false">☆ Favorite</button><button class="secondary-btn" id="restartGame" type="button">↻ &nbsp;Restart</button></div></div>
           <div class="game-area" id="gameArea"></div>
         </div>
       </section>
@@ -527,9 +555,79 @@
       document.getElementById("gameGrid").insertBefore(card, document.getElementById("emptyState"));
     });
     document.querySelector(".game-count strong").textContent = String(document.querySelectorAll(".game-card").length);
+    const libraryStorageKey = "sidequest-home-state-v1";
+    const libraryStatus = document.getElementById("libraryStatus");
+    const validGameNames = value => Array.isArray(value)
+      ? [...new Set(value.filter(name => typeof name === "string" && Object.prototype.hasOwnProperty.call(games, name)))]
+      : [];
+    let libraryState = { favorites: [], recent: [] };
+    try {
+      const saved = JSON.parse(localStorage.getItem(libraryStorageKey) || "{}");
+      if (!saved || typeof saved !== "object" || Array.isArray(saved)) throw new Error("Saved game list has an invalid format.");
+      libraryState = { favorites: validGameNames(saved.favorites), recent: validGameNames(saved.recent).slice(0, 6) };
+    } catch (error) {
+      libraryStatus.textContent = "Saved favorites and recent games couldn't be loaded. They'll still work until you close this page.";
+    }
     let activeGame = "";
     let cleanupGame = () => {};
     let restartCurrentGame = () => {};
+
+    function saveLibraryState() {
+      try {
+        localStorage.setItem(libraryStorageKey, JSON.stringify(libraryState));
+      } catch (error) {
+        libraryStatus.textContent = "Couldn't save your favorites or recent games in this browser. They'll be available until you close this page.";
+      }
+    }
+
+    function renderRecentGames() {
+      const section = document.getElementById("recentSection"), list = document.getElementById("recentGames");
+      list.replaceChildren();
+      libraryState.recent.forEach(name => {
+        const card = document.querySelector(`.game-card[data-game="${name}"]`);
+        const recent = document.createElement("button");
+        recent.type = "button";
+        recent.className = "recent-game";
+        recent.setAttribute("aria-label", `Play ${games[name][0]} again`);
+        const icon = document.createElement("span");
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = card?.querySelector(".game-icon")?.textContent || "✦";
+        recent.append(icon, document.createTextNode(games[name][0]));
+        recent.addEventListener("click", () => openGame(name));
+        list.append(recent);
+      });
+      section.hidden = !libraryState.recent.length ||
+        document.getElementById("search").value.trim() !== "" ||
+        document.getElementById("gameFilter").value !== "all";
+    }
+
+    function updateGameLibrary() {
+      const query = document.getElementById("search").value.trim().toLowerCase();
+      const favoritesOnly = document.getElementById("gameFilter").value === "favorites";
+      let visible = 0;
+      document.querySelectorAll(".game-card").forEach(card => {
+        const name = card.dataset.game;
+        const matches = card.textContent.toLowerCase().includes(query);
+        const favorite = !favoritesOnly || libraryState.favorites.includes(name);
+        card.hidden = !(matches && favorite);
+        if (!card.hidden) visible++;
+      });
+      const emptyState = document.getElementById("emptyState");
+      emptyState.textContent = favoritesOnly && !query
+        ? "No favorites yet. Open a game and tap ☆ Favorite to save it here."
+        : "No games match that search. Try another name.";
+      emptyState.hidden = visible > 0;
+      document.getElementById("surpriseGame").disabled = visible === 0;
+      renderRecentGames();
+    }
+
+    function updateFavoriteButton() {
+      const favoriteButton = document.getElementById("favoriteCurrent");
+      const isFavorite = libraryState.favorites.includes(activeGame);
+      favoriteButton.textContent = isFavorite ? "★ Saved" : "☆ Favorite";
+      favoriteButton.setAttribute("aria-pressed", String(isFavorite));
+      favoriteButton.setAttribute("aria-label", `${isFavorite ? "Remove" : "Add"} ${games[activeGame][0]} ${isFavorite ? "from" : "to"} favorites`);
+    }
 
     function seededRandom(seed) {
       let state = seed >>> 0;
@@ -553,12 +651,18 @@
       activeGame = "";
       gameScreen.classList.remove("active");
       homeScreen.hidden = false;
+      updateGameLibrary();
       document.getElementById("search").focus();
     }
     function openGame(name) {
+      if (!Object.prototype.hasOwnProperty.call(games, name)) return;
       cleanupGame();
       cleanupGame = () => {};
       activeGame = name;
+      libraryState.recent = [name, ...libraryState.recent.filter(item => item !== name)].slice(0, 6);
+      saveLibraryState();
+      updateFavoriteButton();
+      updateGameLibrary();
       homeScreen.hidden = true;
       gameScreen.classList.add("active");
       gameTitle.textContent = games[name][0];
@@ -3216,16 +3320,29 @@
     document.getElementById("backHome").addEventListener("click", showHome);
     document.getElementById("homeLink").addEventListener("click", event => { event.preventDefault(); showHome(); });
     document.getElementById("restartGame").addEventListener("click", () => restartCurrentGame());
-    document.getElementById("search").addEventListener("input", event => {
-      const query = event.target.value.trim().toLowerCase();
-      let visible = 0;
-      document.querySelectorAll(".game-card").forEach(card => {
-        const show = card.textContent.toLowerCase().includes(query);
-        card.hidden = !show;
-        if (show) visible++;
-      });
-      document.getElementById("emptyState").hidden = visible > 0;
+    document.getElementById("favoriteCurrent").addEventListener("click", () => {
+      const index = libraryState.favorites.indexOf(activeGame);
+      if (index >= 0) libraryState.favorites.splice(index, 1);
+      else libraryState.favorites.unshift(activeGame);
+      saveLibraryState();
+      updateFavoriteButton();
+      updateGameLibrary();
     });
+    document.getElementById("search").addEventListener("input", updateGameLibrary);
+    document.getElementById("gameFilter").addEventListener("change", updateGameLibrary);
+    document.getElementById("surpriseGame").addEventListener("click", () => {
+      const candidates = [...document.querySelectorAll(".game-card:not([hidden])")];
+      if (!candidates.length) return;
+      const fresh = candidates.filter(card => card.dataset.game !== libraryState.recent[0]);
+      const options = fresh.length ? fresh : candidates;
+      openGame(options[Math.floor(Math.random() * options.length)].dataset.game);
+    });
+    document.getElementById("clearRecent").addEventListener("click", () => {
+      libraryState.recent = [];
+      saveLibraryState();
+      updateGameLibrary();
+    });
+    updateGameLibrary();
 
     const noteModal = document.getElementById("noteModal");
     const noteText = document.getElementById("noteText");
