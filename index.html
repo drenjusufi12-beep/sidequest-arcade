@@ -55,6 +55,13 @@
     .brand span:last-child { font-size: 17px; }
     .header-actions { display: flex; align-items: center; gap: 10px; }
     .small-label { color: var(--muted); font-size: 12px; }
+    .quick-launch-btn {
+      display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px;
+      color: var(--text); border: 1px solid var(--line); border-radius: 12px;
+      background: rgba(255,255,255,.045); cursor: pointer; font-weight: 700;
+    }
+    .quick-launch-btn:hover { border-color: rgba(198,243,107,.5); background: rgba(198,243,107,.08); }
+    .quick-launch-btn kbd { padding: 2px 5px; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; font-size: 10px; font-weight: 600; }
     .reader-launch, .secondary-btn, .primary-btn {
       border: 0; cursor: pointer; border-radius: 12px; font-weight: 750;
       transition: transform .16s ease, filter .16s ease, background .16s ease;
@@ -95,6 +102,36 @@
     .recent-game { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; color: var(--text); border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.045); cursor: pointer; font-size: 13px; font-weight: 700; }
     .recent-game:hover { border-color: rgba(198,243,107,.5); background: rgba(198,243,107,.08); }
     .favorite-btn[aria-pressed="true"] { color: #211b0d; background: #f5d477; }
+    .quick-dialog {
+      width: min(580px, calc(100% - 28px)); max-height: min(80vh, 660px); padding: 0;
+      overflow: hidden; color: var(--text); border: 1px solid var(--line);
+      border-radius: 20px; background: var(--panel); box-shadow: var(--shadow);
+    }
+    .quick-dialog::backdrop { background: rgba(5,8,15,.72); backdrop-filter: blur(4px); }
+    .quick-dialog-inner { display: flex; flex-direction: column; max-height: min(80vh, 660px); }
+    .quick-dialog-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; padding: 19px 20px 14px; }
+    .quick-dialog-head .eyebrow { margin-bottom: 5px; }
+    .quick-dialog-head h2 { margin: 0; font-size: 20px; letter-spacing: -.035em; }
+    .quick-search-wrap { display: block; padding: 0 20px 14px; }
+    .quick-search-wrap input {
+      width: 100%; padding: 13px 14px; color: var(--text); border: 1px solid var(--line);
+      border-radius: 12px; background: rgba(255,255,255,.045);
+    }
+    .quick-results { display: flex; flex-direction: column; gap: 5px; min-height: 52px; padding: 0 12px 10px; overflow-y: auto; }
+    .quick-result {
+      display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px;
+      color: var(--text); text-align: left; border: 1px solid transparent;
+      border-radius: 12px; background: transparent; cursor: pointer;
+    }
+    .quick-result:hover, .quick-result:focus-visible { border-color: var(--line); background: rgba(255,255,255,.06); }
+    .quick-result-icon { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; border-radius: 11px; background: var(--panel-2); font-size: 19px; }
+    .quick-result-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+    .quick-result-title { font-size: 13px; font-weight: 800; }
+    .quick-result-description { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .quick-result-badge { flex: 0 0 auto; color: var(--muted); font-size: 10px; }
+    .quick-empty { padding: 18px 10px; color: var(--muted); text-align: center; font-size: 13px; }
+    .quick-hints { margin: 0; padding: 11px 20px 14px; color: var(--muted); border-top: 1px solid var(--line); font-size: 11px; }
+    .quick-hints kbd { padding: 2px 5px; color: var(--text); border: 1px solid var(--line); border-radius: 5px; background: var(--panel-2); font: inherit; }
     .game-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
     .game-card {
       min-height: 174px; padding: 18px; display: flex; flex-direction: column; align-items: start;
@@ -254,6 +291,10 @@
       .shell { width: min(100% - 28px, 1120px); }
       header { height: 68px; }
       .small-label { display: none; }
+      .quick-launch-label { display: none; }
+      .quick-launch-btn kbd { display: none; }
+      .header-actions { gap: 6px; }
+      .quick-launch-btn { padding: 9px 11px; }
       .reader-launch { padding: 9px 11px; }
       main { padding-top: 31px; }
       .hero { align-items: start; flex-direction: column; }
@@ -288,6 +329,7 @@
       </a>
       <div class="header-actions">
         <span class="small-label">Your little break between big things.</span>
+        <button class="quick-launch-btn" id="openQuickLauncher" type="button" aria-label="Quick launch games" title="Quick launch (Ctrl or Command + K)"><span aria-hidden="true">⌕</span><span class="quick-launch-label">Quick play</span><kbd>Ctrl/⌘ K</kbd></button>
         <button class="reader-launch" id="openReader" type="button"><span aria-hidden="true">▤</span> Open notes</button>
       </div>
     </header>
@@ -442,6 +484,18 @@
     </main>
   </div>
 
+  <dialog class="quick-dialog" id="quickLauncher" aria-labelledby="quickLauncherHeading">
+    <div class="quick-dialog-inner">
+      <div class="quick-dialog-head">
+        <div><div class="eyebrow">Fast track</div><h2 id="quickLauncherHeading">Where to next?</h2></div>
+        <button class="icon-btn" id="closeQuickLauncher" type="button" aria-label="Close quick launch">×</button>
+      </div>
+      <label class="quick-search-wrap"><span class="sr-only">Search all games and actions</span><input id="quickSearch" type="search" autocomplete="off" placeholder="Search any game or shortcut..."></label>
+      <div class="quick-results" id="quickResults" role="group" aria-label="Games and quick actions"></div>
+      <p class="quick-hints"><kbd>↑</kbd> <kbd>↓</kbd> move · <kbd>Enter</kbd> open · <kbd>Esc</kbd> close · Press <kbd>/</kbd> on the home screen to search</p>
+    </div>
+  </dialog>
+
   <div class="note-modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteHeading">
     <section class="note-window">
       <div class="note-top">
@@ -469,6 +523,10 @@
     const gameArea = document.getElementById("gameArea");
     const gameTitle = document.getElementById("gameTitle");
     const gameDescription = document.getElementById("gameDescription");
+    const quickLauncher = document.getElementById("quickLauncher");
+    const quickSearch = document.getElementById("quickSearch");
+    const quickResults = document.getElementById("quickResults");
+    let quickLauncherReturnFocus = null;
     const games = {
       snake: ["Snake", "Use the arrow keys or WASD to guide your snake and collect the fruit."],
       "2048": ["2048", "Use the arrow keys or WASD to slide tiles. Match numbers to make them bigger."],
@@ -627,6 +685,125 @@
       favoriteButton.textContent = isFavorite ? "★ Saved" : "☆ Favorite";
       favoriteButton.setAttribute("aria-pressed", String(isFavorite));
       favoriteButton.setAttribute("aria-label", `${isFavorite ? "Remove" : "Add"} ${games[activeGame][0]} ${isFavorite ? "from" : "to"} favorites`);
+    }
+
+    function renderQuickLauncher() {
+      const query = quickSearch.value.trim().toLowerCase();
+      quickResults.replaceChildren();
+      const items = [];
+      const addGame = (name, badge = "") => {
+        if (!Object.prototype.hasOwnProperty.call(games, name) || items.some(item => item.name === name)) return;
+        const card = document.querySelector(`.game-card[data-game="${name}"]`);
+        items.push({
+          name,
+          title: games[name][0],
+          description: games[name][1],
+          icon: card?.querySelector(".game-icon")?.textContent || "✦",
+          badge,
+          run: () => openGame(name)
+        });
+      };
+      const addAction = (title, description, icon, run) => items.push({ title, description, icon, run });
+      const matchesCommand = (title, description, keywords = "") =>
+        `${title} ${description} ${keywords}`.toLowerCase().includes(query);
+      const launchSurprise = () => {
+        const cards = [...document.querySelectorAll(".game-card:not([hidden])")];
+        const pool = cards.length ? cards : [...document.querySelectorAll(".game-card")];
+        const fresh = pool.filter(card => card.dataset.game !== libraryState.recent[0]);
+        const choices = fresh.length ? fresh : pool;
+        if (choices.length) openGame(choices[Math.floor(Math.random() * choices.length)].dataset.game);
+      };
+      const resetFilters = () => {
+        quickLauncherReturnFocus = document.getElementById("search");
+        document.getElementById("search").value = "";
+        document.getElementById("gameFilter").value = "all";
+        updateGameLibrary();
+        document.getElementById("search").focus();
+      };
+      const hasLibraryFilters = document.getElementById("search").value ||
+        document.getElementById("gameFilter").value !== "all";
+
+      if (!query) {
+        if (libraryState.recent[0]) {
+          const lastGame = libraryState.recent[0];
+          addAction(`Play ${games[lastGame][0]} again`, "Jump straight back into your last game.", "↻", () => openGame(lastGame));
+        }
+        addAction("Surprise me", "Start a random game without browsing the library.", "✦", launchSurprise);
+        addAction("Open notes & reader", "Write, save, or read text aloud.", "▤", openReader);
+        libraryState.favorites.slice(0, 3).forEach(name => addGame(name, "Favorite"));
+        libraryState.recent.slice(0, 4).forEach(name => addGame(name, "Recent"));
+        if (hasLibraryFilters) addAction("Reset library filters", "Clear the home search and show every game.", "⌕", resetFilters);
+      } else {
+        if (matchesCommand("Surprise me", "Start a random game without browsing the library.", "random pick")) {
+          addAction("Surprise me", "Start a random game without browsing the library.", "✦", launchSurprise);
+        }
+        if (matchesCommand("Open notes & reader", "Write, save, or read text aloud.", "notes reader text")) {
+          addAction("Open notes & reader", "Write, save, or read text aloud.", "▤", openReader);
+        }
+        if (hasLibraryFilters && matchesCommand("Reset library filters", "Clear the home search and show every game.", "reset clear filters")) {
+          addAction("Reset library filters", "Clear the home search and show every game.", "⌕", resetFilters);
+        }
+        const matching = [...document.querySelectorAll(".game-card")].filter(card => {
+          const name = card.dataset.game;
+          return `${games[name][0]} ${games[name][1]}`.toLowerCase().includes(query);
+        });
+        matching.sort((a, b) => {
+          const aName = a.dataset.game, bName = b.dataset.game;
+          const aScore = (libraryState.favorites.includes(aName) ? 2 : 0) + (libraryState.recent.includes(aName) ? 1 : 0);
+          const bScore = (libraryState.favorites.includes(bName) ? 2 : 0) + (libraryState.recent.includes(bName) ? 1 : 0);
+          return bScore - aScore;
+        });
+        matching.slice(0, 12).forEach(card => {
+          const name = card.dataset.game;
+          addGame(name, libraryState.favorites.includes(name) ? "Favorite" : libraryState.recent.includes(name) ? "Recent" : "");
+        });
+      }
+
+      items.forEach(item => {
+        const result = document.createElement("button");
+        result.type = "button";
+        result.className = "quick-result";
+        const icon = document.createElement("span");
+        icon.className = "quick-result-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = item.icon;
+        const copy = document.createElement("span");
+        copy.className = "quick-result-copy";
+        const title = document.createElement("span");
+        title.className = "quick-result-title";
+        title.textContent = item.title;
+        const description = document.createElement("span");
+        description.className = "quick-result-description";
+        description.textContent = item.description;
+        copy.append(title, description);
+        result.append(icon, copy);
+        if (item.badge) {
+          const badge = document.createElement("span");
+          badge.className = "quick-result-badge";
+          badge.textContent = item.badge;
+          result.append(badge);
+        }
+        result.addEventListener("click", () => {
+          quickLauncher.close();
+          item.run();
+        });
+        quickResults.append(result);
+      });
+      if (!items.length) {
+        const empty = document.createElement("p");
+        empty.className = "quick-empty";
+        empty.textContent = "No matching games. Try another name.";
+        quickResults.append(empty);
+      }
+    }
+
+    function openQuickLauncher() {
+      if (quickLauncher.open || document.getElementById("noteModal").classList.contains("open")) return;
+      quickLauncherReturnFocus = document.activeElement;
+      quickSearch.value = "";
+      renderQuickLauncher();
+      quickLauncher.showModal();
+      quickSearch.focus();
     }
 
     function seededRandom(seed) {
@@ -3341,6 +3518,60 @@
       libraryState.recent = [];
       saveLibraryState();
       updateGameLibrary();
+    });
+    document.getElementById("openQuickLauncher").addEventListener("click", openQuickLauncher);
+    document.getElementById("closeQuickLauncher").addEventListener("click", () => quickLauncher.close());
+    quickSearch.addEventListener("input", renderQuickLauncher);
+    quickLauncher.addEventListener("click", event => { if (event.target === quickLauncher) quickLauncher.close(); });
+    quickLauncher.addEventListener("keydown", event => {
+      event.stopPropagation();
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        quickLauncher.close();
+      } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        const results = [...quickResults.querySelectorAll(".quick-result")];
+        if (!results.length) return;
+        event.preventDefault();
+        const current = results.indexOf(document.activeElement);
+        const direction = event.key === "ArrowDown" ? 1 : -1;
+        const next = current < 0
+          ? (direction > 0 ? 0 : results.length - 1)
+          : (current + direction + results.length) % results.length;
+        results[next].focus();
+      } else if (event.target === quickSearch && event.key === "Enter") {
+        const firstResult = quickResults.querySelector(".quick-result");
+        if (firstResult) {
+          event.preventDefault();
+          firstResult.click();
+        }
+      }
+    });
+    quickLauncher.addEventListener("close", () => {
+      if (!document.getElementById("noteModal").classList.contains("open")) {
+        const returnFocus = quickLauncherReturnFocus;
+        quickLauncherReturnFocus = null;
+        if (returnFocus instanceof HTMLElement && returnFocus.isConnected && !returnFocus.closest("[hidden]") && returnFocus.getClientRects().length) returnFocus.focus();
+        else document.getElementById("openQuickLauncher").focus();
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.defaultPrevented || event.isComposing) return;
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openQuickLauncher();
+        return;
+      }
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      const isTyping = target instanceof HTMLElement &&
+        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+      if (event.key === "/" && !isTyping && !document.getElementById("homeScreen").hidden &&
+          !document.getElementById("noteModal").classList.contains("open")) {
+        event.preventDefault();
+        document.getElementById("search").focus();
+      }
     });
     updateGameLibrary();
 
