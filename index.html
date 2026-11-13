@@ -214,6 +214,9 @@
     @keyframes chessMove { from { transform: translate(var(--move-x), var(--move-y)) scale(.72); opacity: .35; } 72% { transform: translate(0,0) scale(1.08); opacity: 1; } to { transform: translate(0,0) scale(1); opacity: 1; } }
     @keyframes chessLand { from { filter: brightness(1.65); } to { filter: brightness(1); } }
     .mini-game-canvas { display: block; width: min(760px, 100%); height: auto; border: 1px solid var(--line); border-radius: 16px; background: #101523; touch-action: none; }
+    .webgl-stage { position: relative; width: min(760px, 100%); }
+    .webgl-stage .mini-game-canvas { width: 100%; }
+    .webgl-reticle { position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; border: 2px solid rgba(255,255,255,.9); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; box-shadow: 0 0 12px rgba(255,255,255,.55); }
     .mini-grid { display: grid; grid-template-columns: repeat(var(--grid-size, 4), min(17vw, 72px)); gap: 7px; justify-content: center; }
     .mini-tile { width: min(17vw, 72px); height: min(17vw, 72px); display: grid; place-items: center; padding: 4px; font-size: clamp(14px, 3.8vw, 24px); font-weight: 850; }
     .mini-hud { width: min(760px, 100%); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--muted); }
@@ -516,6 +519,7 @@
     </section>
   </div>
 
+  <script src="word-spark-words.js"></script>
   <script>
     "use strict";
     const homeScreen = document.getElementById("homeScreen");
@@ -599,6 +603,55 @@
       roborescue: { title: "Robo Rescue", description: "Program a short sequence of moves to guide a bot to its stranded pal.", icon: "🤖", tone: "tone-pink", mode: "path" },
       potionfactory: { title: "Potion Factory", description: "Remember the recipe, then mix the ingredients in the right order.", icon: "🧪", tone: "tone-purple", mode: "sequence" }
     };
+    const webglGameThemes = [
+      ["Aurora Run", "🌌"], ["Crystal Canyon", "💎"], ["Nebula Marksman", "🎯"], ["Clockwork Maze", "⚙️"],
+      ["Cloudstep", "☁️"], ["Skywhale Flight", "🐋"], ["Lunar Drift", "🌙"], ["Prism Tower", "🔷"],
+      ["Ember Express", "🔥"], ["Tidal Treasure Run", "🌊"], ["Comet Sniper", "☄️"], ["Coral Labyrinth", "🪸"],
+      ["Mushroom Hop", "🍄"], ["Kestrel Squadron", "🦅"], ["Saturn Slalom", "🪐"], ["Block Bloom", "🌺"],
+      ["Volcano Velocity", "🌋"], ["Reef Runner", "🐠"], ["Starfruit Search", "🍉"], ["Frostline Maze", "❄️"],
+      ["Rooftop Leap", "🏙️"], ["Aurora Aviator", "🛩️"], ["Ringworld Rally", "⭕"], ["Quartz Stack", "🪨"],
+      ["Monsoon Dash", "🌧️"], ["Deepsea Cache", "🐚"], ["Holo Blaster", "🛸"], ["Clocktower Keys", "🗝️"],
+      ["Jellybean Jump", "🫘"], ["Cloudcatcher Flight", "🌤️"], ["Meteor Orbit", "☄️"], ["Solar Stack", "☀️"],
+      ["Canyon Courier", "📦"], ["Glimmer Grove", "✨"], ["Crystal Crossfire", "🔮"], ["Moonlit Maze", "🌒"],
+      ["Lantern Leap", "🏮"], ["Comet Courier 3D", "🚀"], ["Orbit Orchard", "🍎"], ["Skyline Stacker", "🏗️"],
+      ["Polar Pursuit", "🐧"], ["Coral Crown", "👑"], ["Pixel Blaster 3D", "👾"], ["Echoing Catacombs", "🏛️"],
+      ["Springboard Safari", "🦘"], ["Starling Flight", "🐦"], ["Astro Ring Run", "💫"], ["Prism Pile-Up", "🟪"],
+      ["Thunder Trail", "⛈️"], ["Tidepool Treasures", "🦀"], ["Nova Needle", "🌠"], ["Mossstone Maze", "🌿"],
+      ["Balloon Bounce 3D", "🎈"], ["Falcon Flight Deck", "🪶"], ["Gyro Globe", "🌍"], ["Neon Nest Stack", "🪺"],
+      ["Sandstorm Sprint", "🏜️"], ["Firefly Forest", "🪲"], ["Orbital Outpost", "🛰️"], ["Sunken Switchback", "⚓"],
+      ["Skybridge Skipper", "🌉"], ["Ion Interceptor", "⚡"], ["Gravity Garden", "🪴"], ["Treetop Tower", "🌳"],
+      ["Aurora Asphalt", "🛣️"], ["Pearl Diver Dash", "🦪"], ["Starlight Shooter", "🌟"], ["Glass Grotto 3D", "🫧"],
+      ["Puddle Jumper 3D", "🐸"], ["Zephyr Racer 3D", "💨"], ["Comet Carousel", "🎠"], ["Cloud Column", "☁️"],
+      ["Radiant Runway", "💡"], ["Biolume Bay", "🐬"], ["Starforge Sniper", "🪐"], ["Mossy Maze", "🍀"],
+      ["Koi Pond Hops", "🐟"], ["Jetstream Jukebox", "🎼"], ["Ringrunner Orbit", "🌕"], ["Gemstone Stack", "💠"],
+      ["Solar Sprint", "🌞"], ["Polar Pearl Quest", "🧊"]
+    ];
+    const webglMechanics = [
+      { id: "runner", description: "Dodge incoming 3D barriers and race to the finish." },
+      { id: "collect", description: "Steer through a 3D arena, gather glowing treasure, and avoid moving hazards." },
+      { id: "target", description: "Click or tap the moving 3D targets before time runs out." },
+      { id: "maze", description: "Find the key and navigate the 3D maze to its exit." },
+      { id: "hop", description: "Jump over 3D hazards and keep your run alive." },
+      { id: "flight", description: "Pilot in three dimensions, collect beacons, and dodge debris." },
+      { id: "orbit", description: "Circle the 3D arena, collect eight stars, and avoid moving hazards." },
+      { id: "stack", description: "Time each drop to build the tallest 3D tower you can." }
+    ];
+    const webglTones = ["tone-lime", "tone-purple", "tone-pink", "tone-blue"];
+    const webglPalettes = ["#6de6cd", "#f7b955", "#a893ff", "#ff81a8", "#73c7ff", "#c5e85e", "#ffa16b", "#b4a1f5"];
+    webglGameThemes.forEach(([title, icon], index) => {
+      const mechanic = webglMechanics[index % webglMechanics.length];
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "");
+      newArcadeGames[id] = {
+        title,
+        description: `${mechanic.description} Explore ${title}'s original world in real-time WebGL 3D.`,
+        icon,
+        tone: webglTones[index % webglTones.length],
+        mode: "webgl3d",
+        mechanic: mechanic.id,
+        color: webglPalettes[index % webglPalettes.length],
+        seed: index + 1
+      };
+    });
     const gameLevels = Object.create(null);
     const gamesWithoutLevels = new Set(["chess", "checkers", "geography", "scramble"]);
     const localPlayerModes = Object.create(null);
@@ -1953,6 +2006,13 @@
     function startWordSpark({ button, message, level }) {
       const answers=["PLANT","BRAVE","CLOUD","DREAM","FLAME","GRAPE","HOUSE","JUICE","KNIFE","LEMON","MUSIC","NORTH","OCEAN","PAINT","QUEST","RIVER","STONE","TIGER","UNITY","VIVID","WATER","YOUTH","ZEBRA","BLOOM","CHARM","DELTA","EMBER","FROST","GIANT","HONEY"];
       const accepted = new Set(answers.concat("ABOUT ABOVE ACTOR ACUTE ADMIT ADOPT AFTER AGAIN AGENT AGREE AHEAD ALARM ALBUM ALERT ALIVE ALLOW ALONE ALONG ALTER AMONG ANGLE ANGRY APART APPLE APPLY ARENA ARGUE ARISE ARMOR ASIDE ASSET AUDIO AVOID AWARD AWARE BADGE BASIC BEACH BEGIN BELOW BENCH BIRTH BLACK BLAME BLANK BLAST BLAZE BLEND BLIND BLOCK BLOOD BOARD BONUS BOUND BRAIN BRAND BRAVE BREAD BREAK BRICK BRIDE BRIEF BRING BROAD BROKE BROWN BRUSH BUILD BUILT BUYER CABIN CABLE CARRY CATCH CAUSE CHAIR CHAMP CHANCE CHANGE CHART CHASE CHEAP CHECK CHEEK CHESS CHIEF CHILD CHINA CHOICE CIVIL CLAIM CLASS CLEAN CLEAR CLERK CLICK CLIMB CLOCK CLOSE CLOUD COACH COAST COLOR COMET COMIC COUNT COURT COVER CRAFT CRASH CREAM CRIME CROSS CROWD CROWN CURVE CYCLE DAILY DANCE DEALT DEATH DECOR DELAY DEPTH DIARY DIGIT DIRTY DOING DOUBT DOZEN DRAFT DRAMA DREAM DRESS DRINK DRIVE DROWN EAGER EARLY EARTH EIGHT ELDER ELECT ENJOY ENTER ENTRY EQUAL ERROR EVENT EVERY EXACT EXIST EXTRA FAITH FALSE FANCY FAVOR FEAST FENCE FEVER FIELD FIFTY FIGHT FINAL FIRST FIXED FLAME FLASH FLEET FLOOR FLOUR FOCUS FORCE FORTH FORTY FOUND FRAME FRESH FRONT FRUIT FUNNY GIANT GIVEN GLASS GLOBE GLOOM GLOVE GRACE GRADE GRAIN GRAND GRANT GRASS GREAT GREEN GROUP GROWN GUARD GUESS GUEST GUIDE HABIT HAPPY HEART HEAVY HELLO HONEY HONOR HORSE HOTEL HUMAN HUMOR IDEAL IMAGE INDEX INNER INPUT ISSUE JUDGE JUICE KNIFE KNOCK KNOWN LABEL LARGE LATER LAUGH LAYER LEARN LEAST LEAVE LEGAL LEVEL LIGHT LIMIT LUNCH LYING MAGIC MAJOR MAKER MARCH MATCH MAYBE METAL MIGHT MINOR MODEL MONEY MONTH MORAL MOTOR MOUNT MOUSE MOUTH MOVIE MUSIC NEVER NIGHT NOBLE NOISE NORTH NOVEL NURSE OCCUR OCEAN OFFER OFTEN ORDER OTHER OWNER PAINT PANEL PAPER PARTY PEACE PHASE PHONE PHOTO PIECE PILOT PITCH PLACE PLANE PLANT PLATE POINT POWER PRESS PRICE PRIDE PRIME PRINT PRIOR PROOF PROUD QUEEN QUICK QUIET QUITE QUOTE RADIO RAISE RANGE RAPID REACH READY RELAX REPLY RIGHT RIVER ROUND ROYAL SCALE SCENE SCOPE SCORE SENSE SERVE SEVEN SHALL SHAPE SHARE SHARP SHEET SHELF SHELL SHIFT SHINE SHIRT SHOCK SHOOT SHORT SHOWN SIGHT SINCE SKILL SLEEP SLICE SLIDE SMALL SMART SMILE SMOKE SOLID SOLVE SORRY SOUND SOUTH SPACE SPEAK SPEED SPEND SPENT SPLIT SPOKE SPORT STAFF STAGE STAND START STATE STEAM STEEL STILL STOCK STONE STOOD STORE STORM STORY STRIP STUDY STUFF SUGAR SUPER SWEET TABLE TAKEN TEACH THANK THEME THERE THESE THICK THING THINK THIRD THOSE THREE THREW THROW TIGHT TIRED TITLE TODAY TOGETHER TOKEN TOOLS TOOTH TOPIC TOTAL TOUCH TOUGH TOWER TRACK TRADE TRAIN TREAT TREND TRIAL TRIBE TRICK TRIED TRUCK TRULY TRUST TRUTH TWICE UNDER UNION UNITY UNTIL UPPER UPSET URBAN USUAL VALUE VIDEO VISIT VOICE WASTE WATCH WATER WHEEL WHERE WHICH WHILE WHITE WHOLE WHOSE WOMAN WORLD WORRY WORSE WORST WORTH WOULD WRITE WRONG YIELD YOUNG YOUTH".split(/\s+/)));
+      const dictionaryWords = window.SIDEQUEST_WORDS;
+      if (typeof dictionaryWords !== "string" || !dictionaryWords.trim()) {
+        throw new Error("The offline Word Spark dictionary did not load.");
+      }
+      dictionaryWords.split(/\s+/).forEach(word => {
+        if (/^[A-Z]{5}$/.test(word)) accepted.add(word);
+      });
       ["CRANE","SLATE","STARE","ARISE","ADIEU","REACT","TRACE","ROAST","AUDIO","LEAST"].forEach(word => accepted.add(word));
       const answer=answers[(level*17+Math.floor(Math.random()*answers.length))%answers.length];
       const maxGuesses=Math.max(3,6-Math.floor((level-1)/5));
@@ -1989,6 +2049,12 @@
         key.addEventListener("click",()=>pressKey(value));bottomRow.append(key);
       }
       keyboard.append(bottomRow);
+      const wordListCredit = document.createElement("a");
+      wordListCredit.href = "WORDLIST-LICENSE.txt";
+      wordListCredit.target = "_blank";
+      wordListCredit.rel = "noopener";
+      wordListCredit.textContent = `Offline SCOWL words + game extras · ${accepted.size.toLocaleString()} accepted words · attribution`;
+      wordListCredit.style.cssText = "color:var(--muted);font-size:11px;text-align:center";
       function addGuess(word){
         const row=document.createElement("div");row.className="word-row";
         const remaining=Object.create(null);for(const char of answer)remaining[char]=(remaining[char]||0)+1;
@@ -2009,8 +2075,8 @@
         else message(`${maxGuesses-guesses} guesses left. Green is correct; orange is in the word; red is absent.`);
         input.value="";
       });
-      gameArea.append(form,board,keyboard);
-      message(`Level ${level}: solve the five-letter word in ${maxGuesses} guesses. Green is correct; orange is in the word; red is absent.`);
+      gameArea.append(form,board,keyboard,wordListCredit);
+      message(`Level ${level}: solve the five-letter word in ${maxGuesses} guesses. ${accepted.size.toLocaleString()} five-letter words are accepted. Green is correct; orange is in the word; red is absent.`);
     }
 
     function startConnectFour({ button, message, level }) {
@@ -3341,6 +3407,527 @@
       gameArea.append(score,panel,canvas,choices);next();message(`Level ${level}: name ${rounds} notes in 45 seconds. Higher levels add more notes above and below the staff.`);
     }
 
+    function startWebGLArcade({ gameArea, config, addCleanup, button, message }) {
+      const mechanic = config.mechanic;
+      const hud = document.createElement("div");
+      hud.className = "mini-hud";
+      const scoreLabel = document.createElement("span");
+      const timerLabel = document.createElement("span");
+      hud.append(scoreLabel, timerLabel);
+      const canvas = document.createElement("canvas");
+      canvas.className = "mini-game-canvas webgl-canvas";
+      canvas.width = 760;
+      canvas.height = 420;
+      canvas.setAttribute("aria-label", `${config.title}, interactive three-dimensional game`);
+      const stage = document.createElement("div");
+      stage.className = "webgl-stage";
+      stage.append(canvas);
+      if (mechanic === "target") {
+        const reticle = document.createElement("span");
+        reticle.className = "webgl-reticle";
+        reticle.setAttribute("aria-hidden", "true");
+        stage.append(reticle);
+      }
+      const controls = document.createElement("div");
+      controls.className = "touch-controls";
+      const action = button(mechanic === "target" ? "Fire" : mechanic === "stack" ? "Drop block" : "Jump", "primary-btn");
+      action.hidden = !["target", "stack", "hop"].includes(mechanic);
+      const status = document.createElement("div");
+      status.className = "message";
+      status.setAttribute("aria-live", "polite");
+      gameArea.append(hud, stage, controls, action, status);
+
+      const gl = canvas.getContext("webgl", { antialias: true, alpha: false, powerPreference: "low-power" });
+      if (!gl) {
+        status.textContent = "This game needs WebGL, which is not available in this browser. Try a browser with hardware acceleration enabled.";
+        message(status.textContent);
+        return;
+      }
+
+      let program, buffer, vertexShader, fragmentShader, matrixLocation, positionLocation, colorLocation;
+      try {
+        vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        if (!vertexShader || !fragmentShader) throw new Error("The browser could not allocate WebGL shaders.");
+        gl.shaderSource(vertexShader, "attribute vec3 aPosition; attribute vec3 aColor; uniform mat4 uMatrix; varying vec3 vColor; void main(){ gl_Position=uMatrix*vec4(aPosition,1.0); vColor=aColor; }");
+        gl.shaderSource(fragmentShader, "precision mediump float; varying vec3 vColor; void main(){ gl_FragColor=vec4(vColor,1.0); }");
+        gl.compileShader(vertexShader);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(vertexShader) || "The WebGL vertex shader failed.");
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(fragmentShader) || "The WebGL color shader failed.");
+        program = gl.createProgram();
+        if (!program) throw new Error("The browser could not create a WebGL program.");
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) || "The WebGL program could not be linked.");
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        buffer = gl.createBuffer();
+        if (!buffer) throw new Error("The browser could not allocate a WebGL scene buffer.");
+        matrixLocation = gl.getUniformLocation(program, "uMatrix");
+        positionLocation = gl.getAttribLocation(program, "aPosition");
+        colorLocation = gl.getAttribLocation(program, "aColor");
+      } catch (error) {
+        if (vertexShader) gl.deleteShader(vertexShader);
+        if (fragmentShader) gl.deleteShader(fragmentShader);
+        if (program) gl.deleteProgram(program);
+        status.textContent = `The 3D scene could not start: ${error.message}`;
+        message(status.textContent);
+        return;
+      }
+
+      const held = new Set();
+      const color = config.color;
+      const targetGoal = 8;
+      const pickups = [];
+      const hazards = [];
+      const mazePath = new Set(["0,6", "0,5", "0,4", "1,4", "2,4", "2,3", "2,2", "3,2", "4,2", "4,1", "4,0"]);
+      const mazeWalls = [];
+      for (let row = 0; row < 7; row++) {
+        for (let column = 0; column < 7; column++) {
+          if (!mazePath.has(`${column},${row}`)) mazeWalls.push({ x: (column - 3) * 1.5, z: (row - 3) * 1.5 });
+        }
+      }
+      let seed = config.seed >>> 0;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+      let elapsed = 0, spawnElapsed = 0, score = 0, lives = 3, finished = false, frameId = 0, previousTime = 0;
+      let playerX = mechanic === "maze" ? -4.5 : 0;
+      let playerY = mechanic === "maze" || mechanic === "hop" ? 0 : mechanic === "flight" ? 3 : 0.45;
+      let playerZ = mechanic === "maze" ? 4.5 : 0;
+      let jumpVelocity = 0, mazeHasKey = false, orbitAngle = 0, orbitRadius = 4;
+      let towerWidth = 2.8, towerX = 0, towerBlocks = 0, movingBlockX = 0;
+      let currentTargetX = 0;
+      const obstacles = [];
+      const starPoints = Array.from({ length: 42 }, () => ({
+        x: (random() - 0.5) * 28,
+        y: 3 + random() * 14,
+        z: -5 - random() * 45
+      }));
+
+      if (mechanic === "collect" || mechanic === "orbit") {
+        const spots = [[-4,-3],[-1,-4],[3,-3],[4,1],[2,4],[-2,4],[-4,1],[0,0],[-1,2],[3,0]];
+        spots.forEach(([x, z], index) => {
+          pickups.push({ x: mechanic === "orbit" ? Math.cos(index * .62) * 4.4 : x, y: .65, z: mechanic === "orbit" ? Math.sin(index * .62) * 4.4 : z, taken: false });
+        });
+        for (let i = 0; i < 3; i++) hazards.push({ x: (random() - .5) * 8, y: .55, z: (random() - .5) * 8, phase: random() * 6.28, hit: false });
+      }
+      if (mechanic === "flight") {
+        for (let i = 0; i < 10; i++) pickups.push({ x: (random() - .5) * 9, y: 1.5 + random() * 5, z: -10 - i * 4, taken: false });
+        for (let i = 0; i < 6; i++) hazards.push({ x: (random() - .5) * 9, y: 1.5 + random() * 5, z: -15 - i * 6, phase: random() * 6.28, hit: false });
+      }
+
+      function vectorLength(v) { return Math.hypot(v[0], v[1], v[2]) || 1; }
+      function normalize(v) { const length = vectorLength(v); return v.map(value => value / length); }
+      function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+      function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+      function perspective(fov, aspect, near, far) {
+        const f = 1 / Math.tan(fov / 2);
+        return new Float32Array([f / aspect,0,0,0,0,f,0,0,0,0,(far + near) / (near - far),-1,0,0,(2 * far * near) / (near - far),0]);
+      }
+      function lookAt(eye, center) {
+        const z = normalize([eye[0] - center[0], eye[1] - center[1], eye[2] - center[2]]);
+        const x = normalize(cross([0, 1, 0], z));
+        const y = cross(z, x);
+        return new Float32Array([
+          x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0,
+          -dot(x,eye),-dot(y,eye),-dot(z,eye),1
+        ]);
+      }
+      function multiply(a, b) {
+        const out = new Float32Array(16);
+        for (let column = 0; column < 4; column++) {
+          for (let row = 0; row < 4; row++) {
+            out[column * 4 + row] = a[row] * b[column * 4] + a[4 + row] * b[column * 4 + 1] + a[8 + row] * b[column * 4 + 2] + a[12 + row] * b[column * 4 + 3];
+          }
+        }
+        return out;
+      }
+      function rgb(hex, shade = 1) {
+        const value = Number.parseInt(hex.slice(1), 16);
+        return [((value >> 16) & 255) / 255 * shade, ((value >> 8) & 255) / 255 * shade, (value & 255) / 255 * shade];
+      }
+      function pushTriangle(vertices, colors, a, b, c, faceColor) {
+        for (const point of [a, b, c]) {
+          vertices.push(point[0], point[1], point[2]);
+          colors.push(faceColor[0], faceColor[1], faceColor[2]);
+        }
+      }
+      function pushCube(vertices, colors, x, y, z, sx, sy, sz, shade, rotation = 0) {
+        const c = Math.cos(rotation), s = Math.sin(rotation);
+        const faces = [
+          [[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],
+          [[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1]],
+          [[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1]],
+          [[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]],
+          [[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1]],
+          [[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1]]
+        ];
+        faces.forEach((face, index) => {
+          const points = face.map(([px, py, pz]) => [x + (px * c + pz * s) * sx / 2, y + py * sy / 2, z + (-px * s + pz * c) * sz / 2]);
+          const faceColor = rgb(shade, [1,.75,1.2,.56,.88,.68][index]);
+          pushTriangle(vertices, colors, points[0], points[1], points[2], faceColor);
+          pushTriangle(vertices, colors, points[0], points[2], points[3], faceColor);
+        });
+      }
+      function pushSphere(vertices, colors, x, y, z, radius, shade) {
+        const rows = 7, columns = 10;
+        for (let row = 0; row < rows; row++) {
+          const theta1 = row * Math.PI / rows, theta2 = (row + 1) * Math.PI / rows;
+          for (let column = 0; column < columns; column++) {
+            const phi1 = column * Math.PI * 2 / columns, phi2 = (column + 1) * Math.PI * 2 / columns;
+            const point = (theta, phi) => [x + radius * Math.sin(theta) * Math.cos(phi), y + radius * Math.cos(theta), z + radius * Math.sin(theta) * Math.sin(phi)];
+            const a = point(theta1, phi1), b = point(theta2, phi1), c = point(theta2, phi2), d = point(theta1, phi2);
+            const faceColor = rgb(shade, .62 + .38 * Math.cos((theta1 + theta2) / 2));
+            pushTriangle(vertices, colors, a, b, c, faceColor);
+            pushTriangle(vertices, colors, a, c, d, faceColor);
+          }
+        }
+      }
+      function keyAxis(positive, negative) {
+        return (held.has(positive) ? 1 : 0) - (held.has(negative) ? 1 : 0);
+      }
+      function finish(text) {
+        if (finished) return;
+        finished = true;
+        status.textContent = text;
+        message(text);
+      }
+      function setScore(label) {
+        scoreLabel.textContent = label;
+        timerLabel.textContent = mechanic === "maze" || mechanic === "stack" ? "" : `${Math.max(0, Math.ceil((mechanic === "target" ? 40 : 45) - elapsed))}s`;
+      }
+      function addFloor(vertices, colors, x, z, sx, sz, shade = "#222a3d") {
+        pushCube(vertices, colors, x, -.28, z, sx, .45, sz, shade);
+      }
+      function makeScene(now) {
+        const vertices = [], colors = [];
+        const floorColor = "#202a3a";
+        const accent = color;
+        const danger = "#f36a7b";
+        const gold = "#ffd166";
+        let eye = [0,5,8], center = [0,0,-12];
+
+        if (mechanic === "maze") {
+          eye = [0,12,12]; center = [0,0,0];
+          addFloor(vertices, colors, 0, 0, 11, 11, floorColor);
+          mazeWalls.forEach(wall => pushCube(vertices, colors, wall.x, .25, wall.z, 1.4, 1.2, 1.4, accent));
+          pushSphere(vertices, colors, -1.5, .65 + Math.sin(now * 3) * .12, -1.5, .42, gold);
+          pushCube(vertices, colors, 1.5, .12, -4.5, 1, .3, 1, mazeHasKey ? "#a3f36b" : "#596174");
+          pushSphere(vertices, colors, playerX, .45, playerZ, .34, accent);
+        } else if (mechanic === "collect" || mechanic === "orbit") {
+          eye = [0,13,10]; center = [0,0,0];
+          addFloor(vertices, colors, 0, 0, 13, 13, floorColor);
+          for (let i = -5; i <= 5; i += 2) {
+            pushCube(vertices, colors, i, -.02, 0, .035, .03, 12, "#596174");
+            pushCube(vertices, colors, 0, -.01, i, 12, .03, .035, "#596174");
+          }
+          pickups.filter(item => !item.taken).forEach(item => pushSphere(vertices, colors, item.x, item.y + Math.sin(now * 2 + item.z) * .15, item.z, .34, gold));
+          hazards.filter(item => !item.hit).forEach(item => {
+            const x = item.x + Math.sin(now * 1.3 + item.phase) * 1.1;
+            const z = item.z + Math.cos(now * 1.1 + item.phase) * .8;
+            pushSphere(vertices, colors, x, item.y, z, .48, danger);
+          });
+          pushSphere(vertices, colors, playerX, playerY, playerZ, .43, accent);
+        } else if (mechanic === "target") {
+          eye = [0,4,10]; center = [0,2,-12];
+          addFloor(vertices, colors, 0, -13, 11, 26, floorColor);
+          for (let i = -4; i <= 4; i += 2) pushCube(vertices, colors, i, -.02, -13, .045, .04, 25, "#596174");
+          currentTargetX = Math.sin(elapsed * 1.65 + config.seed) * 4;
+          pushSphere(vertices, colors, currentTargetX, 2 + Math.sin(elapsed * 1.1) * 1.1, -12, .75, gold);
+          for (let i = 0; i < 4; i++) pushSphere(vertices, colors, (i - 1.5) * 1.7, .8, -8 - i * 3, .18, accent);
+          pushCube(vertices, colors, 0, .65, .5, .75, .7, .8, accent);
+        } else if (mechanic === "stack") {
+          eye = [7,7,10]; center = [0,3,-4];
+          addFloor(vertices, colors, 0, -4, 12, 14, floorColor);
+          for (let i = 0; i <= towerBlocks; i++) {
+            const blockX = i === 0 ? 0 : (i === towerBlocks ? towerX : towerX);
+            const width = i === 0 ? 3.2 : towerWidth;
+            pushCube(vertices, colors, blockX, i * .72 + .35, -4, width, .7, 2, i % 2 ? accent : "#a78bfa");
+          }
+          movingBlockX = Math.sin(elapsed * 1.8) * 4;
+          pushCube(vertices, colors, movingBlockX, (towerBlocks + 1) * .72 + .35, -4, towerWidth, .7, 2, gold);
+        } else if (mechanic === "flight") {
+          eye = [0,7,12]; center = [0,2,-10];
+          starPoints.forEach(star => pushCube(vertices, colors, star.x, star.y, star.z, .09, .09, .09, "#7181aa"));
+          addFloor(vertices, colors, 0, -18, 12, 42, floorColor);
+          pickups.filter(item => !item.taken).forEach(item => pushSphere(vertices, colors, item.x, item.y, item.z, .55, gold));
+          hazards.filter(item => !item.hit).forEach(item => pushSphere(vertices, colors, item.x + Math.sin(now + item.phase) * .5, item.y, item.z, .68, danger));
+          pushCube(vertices, colors, playerX, playerY, 0, .8, .45, 1.1, accent, now * .35);
+        } else {
+          eye = [0,5,8]; center = [0,0,-12];
+          starPoints.forEach(star => pushCube(vertices, colors, star.x, star.y, star.z, .09, .09, .09, "#7181aa"));
+          addFloor(vertices, colors, 0, -13, 12, 35, floorColor);
+          pushCube(vertices, colors, -5.8, .1, -13, .25, .6, 35, "#596174");
+          pushCube(vertices, colors, 5.8, .1, -13, .25, .6, 35, "#596174");
+          for (let z = -30; z < 0; z += 5) pushCube(vertices, colors, 0, -.01, z, .12, .025, 1.4, "#dbe6f5");
+          obstacles.forEach(item => {
+            const obstacleColor = item.kind === "token" ? gold : danger;
+            if (item.kind === "token") pushSphere(vertices, colors, item.x, .65, item.z, .42, obstacleColor);
+            else pushCube(vertices, colors, item.x, .6, item.z, 1.25, 1.2, 1.1, obstacleColor, now * .3);
+          });
+          const drawPlayerY = mechanic === "hop" ? .45 + playerY : .45;
+          pushCube(vertices, colors, playerX, drawPlayerY, 0, .7, .75, .85, accent, now * .18);
+        }
+
+        const width = Math.max(1, canvas.clientWidth);
+        const height = Math.max(1, canvas.clientHeight);
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const drawingWidth = Math.max(1, Math.floor(width * pixelRatio));
+        const drawingHeight = Math.max(1, Math.floor(height * pixelRatio));
+        if (canvas.width !== drawingWidth || canvas.height !== drawingHeight) {
+          canvas.width = drawingWidth;
+          canvas.height = drawingHeight;
+        }
+        gl.viewport(0, 0, drawingWidth, drawingHeight);
+        const viewProjection = multiply(perspective(Math.PI / 3, drawingWidth / drawingHeight, .1, 100), lookAt(eye, center));
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.useProgram(program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        const packed = new Float32Array(vertices.length / 3 * 6);
+        for (let i = 0, j = 0; i < vertices.length; i += 3, j += 6) {
+          packed[j] = vertices[i]; packed[j + 1] = vertices[i + 1]; packed[j + 2] = vertices[i + 2];
+          packed[j + 3] = colors[i]; packed[j + 4] = colors[i + 1]; packed[j + 5] = colors[i + 2];
+        }
+        gl.bufferData(gl.ARRAY_BUFFER, packed, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(colorLocation);
+        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 24, 12);
+        gl.uniformMatrix4fv(matrixLocation, false, viewProjection);
+        gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+        lastViewProjection = viewProjection;
+      }
+
+      function toScreen(x, y, z) {
+        if (!lastViewProjection) return null;
+        const m = lastViewProjection;
+        const clipX = m[0] * x + m[4] * y + m[8] * z + m[12];
+        const clipY = m[1] * x + m[5] * y + m[9] * z + m[13];
+        const clipW = m[3] * x + m[7] * y + m[11] * z + m[15];
+        if (clipW <= 0) return null;
+        return { x: (clipX / clipW + 1) * canvas.clientWidth / 2, y: (1 - clipY / clipW) * canvas.clientHeight / 2 };
+      }
+
+      function activate() {
+        if (finished) return;
+        if (mechanic === "hop") {
+          if (playerY <= .02) jumpVelocity = 5.6;
+        } else if (mechanic === "stack") {
+          const overlap = towerWidth - Math.abs(movingBlockX - towerX);
+          if (overlap <= .18) {
+            finish(`Tower toppled at ${towerBlocks} blocks. Press Restart to try again.`);
+            return;
+          }
+          towerX = (towerX + movingBlockX) / 2;
+          towerWidth = overlap;
+          towerBlocks++;
+          setScore(`Tower ${towerBlocks}/10`);
+          if (towerBlocks >= 10) finish("Perfect placement! You built a ten-block 3D tower.");
+        } else if (mechanic === "target") {
+          score++;
+          setScore(`Targets ${score}/${targetGoal}`);
+          if (score >= targetGoal) finish("All 8 targets hit! Nice aim.");
+        }
+      }
+
+      let lastViewProjection = null;
+      function aimAndFire() {
+        const target = toScreen(currentTargetX, 2 + Math.sin(elapsed * 1.1) * 1.1, -12);
+        if (target && Math.hypot(target.x - canvas.clientWidth / 2, target.y - canvas.clientHeight / 2) < 52) {
+          activate();
+        } else {
+          message("Wait for the target to cross the center reticle, then fire.");
+        }
+      }
+      function update(dt) {
+        elapsed += dt;
+        const horizontal = keyAxis("ArrowRight", "ArrowLeft") + keyAxis("KeyD", "KeyA");
+        const vertical = keyAxis("ArrowDown", "ArrowUp") + keyAxis("KeyS", "KeyW");
+        const movement = Math.max(-1, Math.min(1, horizontal));
+        const depth = Math.max(-1, Math.min(1, vertical));
+
+        if (mechanic === "maze") {
+          const speed = 3.1 * dt;
+          const nextX = Math.max(-5.1, Math.min(5.1, playerX + movement * speed));
+          const nextZ = Math.max(-5.1, Math.min(5.1, playerZ + depth * speed));
+          if (!mazeWalls.some(wall => Math.abs(nextX - wall.x) < .76 && Math.abs(playerZ - wall.z) < .76)) playerX = nextX;
+          if (!mazeWalls.some(wall => Math.abs(playerX - wall.x) < .76 && Math.abs(nextZ - wall.z) < .76)) playerZ = nextZ;
+          if (!mazeHasKey && Math.hypot(playerX + 1.5, playerZ + 1.5) < .75) {
+            mazeHasKey = true;
+            message("Key collected! Find the glowing exit in the upper-right corner.");
+          }
+          if (mazeHasKey && Math.hypot(playerX - 1.5, playerZ + 4.5) < .75) finish("Maze cleared! You found the key and escaped.");
+          setScore(mazeHasKey ? "Key found · Find exit" : "Find the golden key");
+        } else if (mechanic === "collect") {
+          playerX = Math.max(-5.2, Math.min(5.2, playerX + movement * dt * 5));
+          playerZ = Math.max(-5.2, Math.min(5.2, playerZ + depth * dt * 5));
+          pickups.forEach(item => {
+            if (!item.taken && Math.hypot(playerX - item.x, playerZ - item.z) < .8) {
+              item.taken = true; score++; setScore(`Treasures ${score}/${targetGoal}`);
+              if (score >= targetGoal) finish("All 8 treasures collected!");
+            }
+          });
+          hazards.filter(item => !item.hit).forEach(item => {
+            const hx = item.x + Math.sin(elapsed * 1.3 + item.phase) * 1.1;
+            const hz = item.z + Math.cos(elapsed * 1.1 + item.phase) * .8;
+            if (!item.hit && Math.hypot(playerX - hx, playerZ - hz) < .65) {
+              item.hit = true; lives--; message(`Hazard hit! ${lives} shields left.`);
+              if (!lives) finish("Out of shields! Press Restart to explore again.");
+            }
+          });
+        } else if (mechanic === "orbit") {
+          orbitAngle += movement * dt * 1.5;
+          orbitRadius = Math.max(2.2, Math.min(5.6, orbitRadius - depth * dt * 1.5));
+          playerX = Math.cos(orbitAngle) * orbitRadius;
+          playerZ = Math.sin(orbitAngle) * orbitRadius;
+          pickups.forEach(item => {
+            if (!item.taken && Math.hypot(playerX - item.x, playerZ - item.z) < .9) {
+              item.taken = true; score++; setScore(`Stars ${score}/${targetGoal}`);
+              if (score >= targetGoal) finish("Orbit complete! You gathered every star.");
+            }
+          });
+        } else if (mechanic === "flight") {
+          playerX = Math.max(-5, Math.min(5, playerX + movement * dt * 5));
+          playerY = Math.max(1, Math.min(7, playerY - depth * dt * 4));
+          pickups.forEach(item => {
+            if (item.taken) return;
+            item.z += dt * 5;
+            if (item.z > -.4 && Math.abs(playerX - item.x) < 1 && Math.abs(playerY - item.y) < 1) {
+              item.taken = true; score++; setScore(`Beacons ${score}/${targetGoal}`);
+              if (score >= targetGoal) finish("Flight path complete! All beacons collected.");
+            } else if (item.z > 3) item.taken = true;
+          });
+          hazards.filter(item => !item.hit).forEach(item => {
+            if (item.hit) return;
+            item.z += dt * 5.5;
+            const hazardX = item.x + Math.sin(elapsed + item.phase) * .5;
+            if (item.z > -.4 && Math.abs(playerX - hazardX) < 1 && Math.abs(playerY - item.y) < 1) {
+              item.hit = true; lives--; message(`Debris strike! ${lives} hull points remain.`);
+              if (!lives) finish("Ship disabled. Press Restart for a new flight.");
+            } else if (item.z > 3) item.hit = true;
+          });
+        } else if (mechanic === "target") {
+          setScore(`Targets ${score}/${targetGoal}`);
+          if (elapsed >= 40) finish(`Time! You hit ${score} of ${targetGoal} targets. Press Restart to aim again.`);
+        } else if (mechanic === "stack") {
+          setScore(`Tower ${towerBlocks}/10`);
+        } else {
+          playerX = Math.max(-4.8, Math.min(4.8, playerX + movement * dt * 5));
+          if (mechanic === "hop") {
+            if (held.has("Space") && playerY <= .02) jumpVelocity = 5.6;
+            playerY = Math.max(0, playerY + jumpVelocity * dt);
+            if (playerY === 0) jumpVelocity = 0;
+            else jumpVelocity -= 12 * dt;
+          }
+          spawnElapsed += dt;
+          if (spawnElapsed >= .9) {
+            spawnElapsed = 0;
+            obstacles.push({ x: [-3.6, 0, 3.6][Math.floor(random() * 3)], z: -28, kind: mechanic === "runner" && random() < .28 ? "token" : "barrier", passed: false });
+          }
+          obstacles.forEach(item => {
+            item.z += dt * (mechanic === "hop" ? 12 : 10);
+            if (item.kind === "token" && item.z > -.5 && Math.abs(playerX - item.x) < 1 && !item.passed) {
+              item.passed = true; score++; setScore(`Stars ${score} · ${Math.floor(elapsed * 12)}m`);
+            } else if (item.kind === "barrier" && item.z > -.7 && item.z < .8 && Math.abs(playerX - item.x) < 1 && !item.passed) {
+              item.passed = true;
+              if (mechanic !== "hop" || playerY < .85) {
+                lives--; message(`Barrier hit! ${lives} chances left.`);
+                if (!lives) finish("Run over! Press Restart to take another route.");
+              } else score++;
+            }
+          });
+          while (obstacles.length && obstacles[0].z > 3) obstacles.shift();
+          const distance = Math.floor(elapsed * 12);
+          setScore(`${mechanic === "hop" ? "Jumps" : "Distance"} ${distance}m · Stars ${score}`);
+          if (elapsed >= 45) finish(`Finish line reached! ${distance}m and ${score} stars.`);
+        }
+
+        if (!finished && (mechanic === "collect" || mechanic === "orbit") && elapsed >= 45) {
+          finish(`Time! You collected ${score} of ${targetGoal} treasures.`);
+        }
+      }
+
+      function frame(time) {
+        if (finished) return;
+        const dt = previousTime ? Math.min((time - previousTime) / 1000, .04) : 0;
+        previousTime = time;
+        update(dt);
+        makeScene(elapsed);
+        frameId = requestAnimationFrame(frame);
+      }
+      function onKeyDown(event) {
+        if (noteModal.classList.contains("open") || quickLauncher.open) return;
+        if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","KeyW","KeyA","KeyS","KeyD","Space"].includes(event.code)) {
+          event.preventDefault();
+          if (!held.has(event.code) && event.code === "Space") {
+            if (mechanic === "target") aimAndFire();
+            else activate();
+          }
+          held.add(event.code);
+        }
+      }
+      function onKeyUp(event) { held.delete(event.code); }
+      function clearHeld() { held.clear(); }
+      function onCanvasPointer(event) {
+        if (mechanic !== "target" || finished) return;
+        const rect = canvas.getBoundingClientRect();
+        const pointerX = event.clientX - rect.left, pointerY = event.clientY - rect.top;
+        const target = toScreen(currentTargetX, 2 + Math.sin(elapsed * 1.1) * 1.1, -12);
+        if (target && Math.hypot(pointerX - target.x, pointerY - target.y) < 48) activate();
+      }
+      function addHold(label, code) {
+        const control = button(label);
+        control.setAttribute("aria-label", `${label} movement`);
+        control.addEventListener("pointerdown", event => { event.preventDefault(); control.setPointerCapture(event.pointerId); held.add(code); });
+        ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => control.addEventListener(type, () => held.delete(code)));
+        controls.append(control);
+      }
+
+      if (mechanic !== "stack" && mechanic !== "target") {
+        addHold("←", "ArrowLeft");
+        if (["collect", "maze", "flight", "orbit"].includes(mechanic)) {
+          addHold("↑", "ArrowUp");
+          addHold("↓", "ArrowDown");
+        }
+        addHold("→", "ArrowRight");
+      }
+      if (mechanic === "hop") action.addEventListener("pointerdown", activate);
+      else if (mechanic === "stack") action.addEventListener("click", activate);
+      else if (mechanic === "target") action.addEventListener("click", aimAndFire);
+      canvas.addEventListener("pointerdown", onCanvasPointer);
+      const onContextLost = event => {
+        event.preventDefault();
+        finish("The 3D graphics context was interrupted. Press Restart to reopen the game.");
+      };
+      canvas.addEventListener("webglcontextlost", onContextLost);
+      document.addEventListener("keydown", onKeyDown);
+      document.addEventListener("keyup", onKeyUp);
+      window.addEventListener("blur", clearHeld);
+      addCleanup(() => {
+        cancelAnimationFrame(frameId);
+        canvas.removeEventListener("pointerdown", onCanvasPointer);
+        canvas.removeEventListener("webglcontextlost", onContextLost);
+        document.removeEventListener("keydown", onKeyDown);
+        document.removeEventListener("keyup", onKeyUp);
+        window.removeEventListener("blur", clearHeld);
+        held.clear();
+        gl.deleteBuffer(buffer);
+        gl.deleteProgram(program);
+      });
+      gl.enable(gl.DEPTH_TEST);
+      gl.disable(gl.CULL_FACE);
+      gl.clearColor(.055, .075, .12, 1);
+      gl.clearDepth(1);
+      gl.useProgram(program);
+      setScore(mechanic === "maze" ? "Find the key" : mechanic === "stack" ? "Tower 0/10" : `${mechanic === "target" ? "Targets" : "Score"} 0`);
+      message(`${config.description} ${mechanic === "maze" ? "Move with WASD or arrow keys." : mechanic === "target" ? "Tap targets on the 3D scene or press Fire." : mechanic === "stack" ? "Press Drop block when the moving block is aligned." : mechanic === "hop" ? "Steer with arrows; press Space or Jump to clear barriers." : "Use WASD, arrow keys, or the on-screen controls."}`);
+      frameId = requestAnimationFrame(frame);
+    }
+
     function startFreshArcadeGame({ name, config, addCleanup, setIntervalSafe, setTimeoutSafe, button, message }) {
       const hud = document.createElement("div"); hud.className = "mini-hud";
       const options = document.createElement("div"); options.className = "mini-options";
@@ -3367,6 +3954,11 @@
       function resetScores() { scores=[0,0];currentPlayer=0;finished=false; }
       function addHome(controls) { gameArea.append(hud,controls); }
       addPlayerSelect();
+
+      if (config.mode === "webgl3d") {
+        startWebGLArcade({ gameArea, config, addCleanup, button, message });
+        return;
+      }
 
       if (config.mode === "quiz") {
         const banks={
